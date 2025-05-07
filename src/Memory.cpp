@@ -2,23 +2,21 @@
 
 template <unsigned int ADDR_BITS, unsigned int DATA_BITS>
 Memory<ADDR_BITS, DATA_BITS>::Memory(sc_module_name name) : sc_module(name) {
-   SC_METHOD(read);
-   sensitive << address;
-
-   SC_METHOD(write);
+   SC_METHOD(process);
    sensitive << clock.pos();
 }
 
 template <unsigned int ADDR_BITS, unsigned int DATA_BITS>
-void Memory<ADDR_BITS, DATA_BITS>::read() {
-   data_out.write(memory[address.read()]);
-}
-
-template <unsigned int ADDR_BITS, unsigned int DATA_BITS>
-void Memory<ADDR_BITS, DATA_BITS>::write() {
-   if (write_enable.read()) {
+void Memory<ADDR_BITS, DATA_BITS>::process() {
+   if (reset.read()) {
+      for (int i = 0; i < (1 << ADDR_BITS); i++) {
+         memory[i] = 0;
+      }
+   } else if (write_enable.read()) {
       memory[address.read()] = data_in.read();
    }
+
+   data_out.write(memory[address.read()]);
 }
 
 template <unsigned int ADDR_BITS, unsigned int DATA_BITS>

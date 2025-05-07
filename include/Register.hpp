@@ -11,11 +11,13 @@ SC_MODULE(Register) {
    sc_in<sc_uint<DATA_BITS>> data_in;
    sc_out<sc_uint<DATA_BITS>> data_out;
 
+   // Internos
+   sc_signal<sc_uint<DATA_BITS>> data;
+
    SC_CTOR(Register);
 
    private:
-   sc_signal<sc_uint<DATA_BITS>> data;
-   void update();
+   void process();
 };
 
 #endif // !REGISTER_HPP

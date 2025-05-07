@@ -12,11 +12,6 @@ SC_MODULE(InstructionFetch) {
    sc_in<bool> write_enable;
    sc_out<sc_uint<DATA_BITS>> instruction;
 
-   SC_CTOR(InstructionFetch);
-
-   void load_program(const std::vector<sc_uint<DATA_BITS>>& program);
-
-   private:
    // Signals
    sc_signal<sc_uint<ADDR_BITS>> pc;
    sc_signal<sc_uint<ADDR_BITS>> pc_next;
@@ -30,6 +25,11 @@ SC_MODULE(InstructionFetch) {
    Register<ADDR_BITS>* pc_register;
    Memory<ADDR_BITS, DATA_BITS>* instruction_memory;
 
+   SC_CTOR(InstructionFetch);
+
+   void load_program(const std::vector<sc_uint<DATA_BITS>>& program);
+
+   private:
    // Methods
    void assign_address();
    void increment_pc();
