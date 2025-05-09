@@ -11,7 +11,7 @@ SC_MODULE(InstructionFetch) {
    sc_in<bool> reset;
    sc_in<bool> write_enable;
    sc_out<sc_uint<DATA_BITS>> instruction;
-
+ 
    // Signals
    sc_signal<sc_uint<ADDR_BITS>> pc;
    sc_signal<sc_uint<ADDR_BITS>> pc_next;

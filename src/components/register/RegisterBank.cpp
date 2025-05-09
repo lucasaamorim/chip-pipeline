@@ -4,7 +4,9 @@ template <unsigned int ADDR_BITS, unsigned int DATA_BITS>
 RegisterBank<ADDR_BITS, DATA_BITS>::RegisterBank(sc_module_name name)
     : sc_module(name) {
    for (int i = 0; i < (1 << ADDR_BITS); i++) {
-      registers[i] = new Register<DATA_BITS>("register_" + std::to_string(i));
+      // registers[i] = new Register<DATA_BITS>("register_" + std::to_string(i));
+      registers[i] = new Register<DATA_BITS>(sc_core::sc_module_name(("register_" + std::to_string(i)).c_str()));
+
       registers[i]->clock(clock);
       registers[i]->reset(reset);
       registers[i]->write_enable(write_enable);
