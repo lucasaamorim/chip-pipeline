@@ -6,63 +6,55 @@ using namespace sc_dt;
 using namespace std;
 
 SC_MODULE(InstructionFetchTb) {
-   sc_clock clock;
-   sc_signal<bool> reset;
+  sc_clock clock;
+  sc_signal<bool> reset;
 
-   sc_signal<sc_uint<32>> instruction;
-   sc_signal<sc_uint<8>> next_pc;
+  sc_signal<sc_uint<32>> instruction;
+  sc_signal<sc_uint<8>> next_pc;
 
-   InstructionFetch<32, 8>* instruction_fetch;
+  InstructionFetch<32, 8> *instruction_fetch;
 
-   SC_CTOR(InstructionFetchTb) : clock("clock", 10, SC_NS) {
-      std::cout << "Construindo..." << std::endl;
-      instruction_fetch = new InstructionFetch<32, 8>("InstructionFetch");
-      instruction_fetch->clock(clock);
-      instruction_fetch->reset(reset);
-      instruction_fetch->instruction(instruction);
-      instruction_fetch->next_pc(next_pc);
-      std::cout << "Finalizado construção..." << std::endl;
+  SC_CTOR(InstructionFetchTb) : clock("clock", 10, SC_NS) {
+    instruction_fetch = new InstructionFetch<32, 8>("InstructionFetch");
+    instruction_fetch->clock(clock);
+    instruction_fetch->reset(reset);
+    instruction_fetch->instruction(instruction);
+    instruction_fetch->next_pc(next_pc);
 
-      SC_THREAD(run_test);
-   }
+    SC_THREAD(run_test);
+  }
 
-   void run_test() {
-      std::cout << "Iniciando testes..." << std::endl;
-      std::cout << "Inicializando memória..." << std::endl;
-      // Inicializa a memória com algumas instruções fictícias
-      std::vector<sc_uint<32>> instrs = {
-         0xA0000001, // instrução 1
-         0xA0000002, // instrução 2
-         0xA0000003, // instrução 3
-         0xA0000004 // instrução 4
-      };
+  void run_test() {
+    // Inicializa a memória com algumas instruções fictícias
+    std::vector<sc_uint<32>> instrs = {
+        0xA0000001, // instrução 1
+        0xA0000002, // instrução 2
+        0xA0000003, // instrução 3
+        0xA0000004  // instrução 4
+    };
 
-      instruction_fetch->initialize_memory(instrs);
-      std::cout << "Fim da inicialização..." << std::endl;
+    instruction_fetch->initialize_memory(instrs);
 
-      // Reset inicial
-      reset.write(true);
-      wait(10, SC_NS); // Um ciclo de clock
-      reset.write(false);
+    // Reset inicial
+    reset.write(true);
+    wait(10, SC_NS); // Um ciclo de clock
+    reset.write(false);
 
-      // Aguarda alguns ciclos
-      for (int i = 0; i < 4; ++i) {
-         wait(10, SC_NS); // clock edge
-         std::cout << "Cycle " << i + 1 << ":" << std::endl;
-         std::cout << "  Instrução: 0x" << std::hex << instruction.read()
-                   << std::endl;
-         std::cout << "  Próximo PC: " << std::dec << next_pc.read()
-                   << std::endl;
-      }
+    // Aguarda alguns ciclos
+    for (int i = 0; i < 4; ++i) {
+      wait(10, SC_NS); // clock edge
+      std::cout << "Cycle " << i + 1 << ":" << std::endl;
+      std::cout << "  Instrução: 0x" << std::hex << instruction.read()
+                << std::endl;
+      std::cout << "  Próximo PC: " << std::dec << next_pc.read() << std::endl;
+    }
 
-      std::cout << "Finalizando testes..." << std::endl;
-
-      sc_stop(); // Finaliza a simulação
-   }
+    sc_stop(); // Finaliza a simulação
+  }
 };
 
-int sc_main(int argc, char* argv[]) {
-   InstructionFetchTb tb("InstructionFetchTb");
-   sc_start();
-   return 0;
+int sc_main(int argc, char *argv[]) {
+  InstructionFetchTb tb("InstructionFetchTb");
+  sc_start();
+  return 0;
 }
