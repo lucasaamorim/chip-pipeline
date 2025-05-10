@@ -1,7 +1,8 @@
 #ifndef INSTRUCTION_DECODER_HPP
 #define INSTRUCTION_DECODER_HPP
 
-#include "RegisterBank.hpp"
+#include "../../components/registers/RegisterBank.hpp"
+
 #include <systemc.h>
 
 template <unsigned int ADDR_BITS = 4, unsigned int DATA_BITS = 32>

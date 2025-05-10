@@ -31,6 +31,4 @@ private:
     void process_operation();
 };
 
-#include "alu.cpp"
-
 #endif // ALU_HPP

@@ -1,8 +1,8 @@
 #ifndef INSTRUCTION_FETCH_HPP
 #define INSTRUCTION_FETCH_HPP
 
-#include "Memory.hpp"
-#include "Register.hpp"
+#include "../../components/memory/Memory.hpp"
+#include "../../components/registers/Register.hpp"
 #include <systemc.h>
 
 template <unsigned int ADDR_BITS = 8, unsigned int DATA_BITS = 32>

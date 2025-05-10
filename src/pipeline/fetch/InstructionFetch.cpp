@@ -17,6 +17,7 @@ InstructionFetch<ADDR_BITS, DATA_BITS>::InstructionFetch(sc_module_name name)
    // Instancia a memória (ROM de instruções)
    instruction_memory = new Memory<ADDR_BITS, DATA_BITS>("instruction_memory");
    instruction_memory->clock(clock);
+   instruction_memory->reset(reset);          // Conexão adicionada
    instruction_memory->write_enable(mem_write_enable);
    instruction_memory->address(pc);
    instruction_memory->data_in(dummy_input);

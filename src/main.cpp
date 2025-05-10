@@ -1,5 +1,5 @@
 #include <systemc.h>
-#include "ProcessorTestbench.hpp"
+#include "processor/ProcessorTestbench.hpp"
 
 int sc_main(int argc, char* argv[]) {
    // Cria o módulo de testbench

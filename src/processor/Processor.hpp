@@ -1,8 +1,8 @@
 #ifndef PROCESSOR_HPP
 #define PROCESSOR_HPP
 
-#include "InstructionDecoder.hpp"
-#include "InstructionFetch.hpp"
+#include "../pipeline/decode/InstructionDecoder.hpp"
+#include "../pipeline/fetch/InstructionFetch.hpp"
 #include <systemc.h>
 
 SC_MODULE(Processor) {
