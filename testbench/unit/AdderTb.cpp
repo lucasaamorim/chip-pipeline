@@ -1,5 +1,8 @@
 #include "arith/Adder.hpp"
-#include <systemc.h>
+#include <systemc>
+
+using namespace sc_core;
+using namespace sc_dt;
 
 SC_MODULE(TestbenchAdder) {
   // Sinais de entrada

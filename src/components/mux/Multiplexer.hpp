@@ -28,10 +28,11 @@ public:
       output.write(0);
     } else {
       unsigned int sel = select.read();
-      if (sel < INPUTS_COUNT)
+      if (sel < INPUTS_COUNT) {
         output.write(inputs[sel].read());
-      else
-        output.write(0); // fallback se select inválido
+      } else {
+        output.write(0);
+      }
     }
   }
 

@@ -1,5 +1,8 @@
 #include "mux/Multiplexer.hpp"
-#include <systemc.h>
+#include <systemc>
+
+using namespace sc_core;
+using namespace sc_dt;
 
 SC_MODULE(TestbenchMux) {
   // Sinais de entrada

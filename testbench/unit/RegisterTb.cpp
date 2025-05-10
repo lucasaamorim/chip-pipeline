@@ -1,5 +1,8 @@
 #include "register/Register.hpp"
-#include <systemc.h>
+#include <systemc>
+
+using namespace sc_core;
+using namespace sc_dt;
 
 SC_MODULE(TestbenchReg) {
   // Sinais de entrada
