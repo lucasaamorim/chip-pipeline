@@ -3,24 +3,36 @@
 
 #include <systemc>
 
+using namespace sc_core;
+using namespace sc_dt;
+
 template <unsigned int BITS = 32>
 SC_MODULE(Register) {
-  sc_in<bool> clock;
-  sc_in<bool> reset;
-  sc_in<bool> write;
+   sc_in<bool> clock;
+   sc_in<bool> reset;
+   sc_in<bool> write;
 
-  sc_in<sc_uint<BITS>> input;
-  sc_out<sc_uint<BITS>> output;
+   sc_in<sc_uint<BITS>> input;
+   sc_out<sc_uint<BITS>> output;
 
-  sc_uint<BITS> data;
+   sc_uint<BITS> data;
 
-  SC_CTOR(Register) {
-    SC_METHOD(process);
-    dont_initialize();
-    sensitive << clock.pos() << reset.pos();
-  }
+   void process() {
+      /// Grava e depois lê
+      if (reset.read()) {
+         data = 0;
+      } else if (write.read()) {
+         data = input.read();
+      }
 
-  void process();
+      output.write(data);
+   }
+
+   SC_CTOR(Register) {
+      SC_METHOD(process);
+      dont_initialize();
+      sensitive << clock.pos() << reset.pos();
+   }
 };
 
 #endif ///!REGISTER_HPP

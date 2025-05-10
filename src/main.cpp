@@ -1,6 +1,7 @@
-#include <iostream>
+#include <systemc.h>
 
-int main() {
-  std::cout << "Hello, World!" << std::endl;
+int sc_main(int argc, char* argv[]) {
+  std::cout << "Hello, SystemC chip-pipeline!\n";
+  sc_start();
   return 0;
 }
