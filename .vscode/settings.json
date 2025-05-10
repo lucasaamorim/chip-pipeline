@@ -1,0 +1,11 @@
+{
+   "files.associations": {
+      "istream": "cpp",
+      "systemc": "cpp",
+      "string": "cpp",
+      "array": "cpp",
+      "vector": "cpp",
+      "xstring": "cpp",
+      "xutility": "cpp"
+   }
+}
