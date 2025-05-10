@@ -3,7 +3,6 @@
 
 using namespace sc_core;
 using namespace sc_dt;
-using namespace std;
 
 SC_MODULE(InstructionFetchTb) {
   sc_clock clock;
