@@ -33,7 +33,8 @@ SC_MODULE(RegisterBank) {
   void process() {
     /// Percorre todos os registradores atualizando os seus sinais
     if (write_enable.read()) {
-      for (int i = 0; i < REGISTERS; i++) {
+      /// Não escreve no primeiro registrador
+      for (int i = 1; i < REGISTERS; i++) {
         if (i == write_address.read()) {
           register_writes[i].write(true);
           register_inputs[i].write(input.read());
