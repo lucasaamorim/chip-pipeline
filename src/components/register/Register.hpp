@@ -10,7 +10,7 @@ template <unsigned int BITS = 32>
 SC_MODULE(Register) {
    sc_in<bool> clock;
    sc_in<bool> reset;
-   sc_in<bool> write;
+   sc_in<bool> write_enable;
 
    sc_in<sc_uint<BITS>> input;
    sc_out<sc_uint<BITS>> output;
@@ -21,7 +21,7 @@ SC_MODULE(Register) {
       /// Grava e depois lê
       if (reset.read()) {
          data = 0;
-      } else if (write.read()) {
+      } else if (write_enable.read()) {
          data = input.read();
       }
 

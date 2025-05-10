@@ -4,7 +4,7 @@
 SC_MODULE(TestbenchReg) {
   // Sinais de entrada
   sc_signal<bool> reset;
-  sc_signal<bool> write;
+  sc_signal<bool> write_enable;
   sc_signal<sc_uint<32>> input;
 
   // Sinal de saída
@@ -24,7 +24,7 @@ SC_MODULE(TestbenchReg) {
     // Conectando sinais
     reg->clock(clock);
     reg->reset(reset);
-    reg->write(write);
+    reg->write_enable(write_enable);
     reg->input(input);
     reg->output(output);
 
@@ -36,53 +36,54 @@ SC_MODULE(TestbenchReg) {
   // Geração de estímulos para o teste
   void stimulus() {
     reset.write(true);
-    write.write(false);
+    write_enable.write(false);
     input.write(0);
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
 
-    std::cout << "Valor inicial do registrador: " << output.read() << std::endl;
+    std::cout << "Valor inicial do registrador: " << output.read()
+              << " (esperado: 0)" << std::endl;
 
     reset.write(false); // Desativa o reset
 
-    wait(5, SC_NS); // Subida do clock
-    write.write(true);
+    wait(10, SC_NS); // Subida do clock
+    write_enable.write(true);
     input.write(42);
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
 
     std::cout << "Valor do registrador depois de escrita: " << output.read()
-              << std::endl;
+              << " (esperado: 42)" << std::endl;
 
-    write.write(false);
+    write_enable.write(false);
     input.write(0);
 
-    wait(5, SC_NS); // Subida do clock
+    wait(10, SC_NS); // Subida do clock
 
     std::cout << "Valor do registrador depois de mais um clock: "
-              << output.read() << std::endl;
+              << output.read() << " (esperado: 42)" << std::endl;
 
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
     reset.write(true);
-    wait(5, SC_NS); // Subida do clock
+    wait(10, SC_NS); // Subida do clock
 
     std::cout << "Valor do registrador depois do reset: " << output.read()
-              << std::endl;
+              << " (esperado: 0)" << std::endl;
 
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
     reset.write(false);
-    wait(5, SC_NS); // Subida do clock
-    write.write(true);
+    wait(10, SC_NS); // Subida do clock
+    write_enable.write(true);
     input.write(120);
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
 
     std::cout << "Valor do registrador depois de escrita: " << output.read()
-              << std::endl;
+              << " (esperado: 120)" << std::endl;
 
-    wait(5, SC_NS); // Subida do clock
+    wait(10, SC_NS); // Subida do clock
     input.write(756);
-    wait(5, SC_NS); // Descida do clock
+    wait(10, SC_NS); // Descida do clock
 
     std::cout << "Valor do registrador depois de mais um clock: "
-              << output.read() << std::endl;
+              << output.read() << " (esperado: 756)" << std::endl;
 
     sc_stop(); // Para a simulação
   }

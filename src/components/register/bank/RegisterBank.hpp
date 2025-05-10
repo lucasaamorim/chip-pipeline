@@ -14,7 +14,7 @@ SC_MODULE(RegisterBank) {
 
   sc_in<bool> clock;
   sc_in<bool> reset;
-  sc_in<bool> write;
+  sc_in<bool> write_enable;
 
   sc_in<sc_uint<ADDRESS_BITS>> read_address_1;
   sc_in<sc_uint<ADDRESS_BITS>> read_address_2;
@@ -32,7 +32,7 @@ SC_MODULE(RegisterBank) {
 
   void process() {
     /// Percorre todos os registradores atualizando os seus sinais
-    if (write.read()) {
+    if (write_enable.read()) {
       for (int i = 0; i < REGISTERS; i++) {
         if (i == write_address.read()) {
           register_writes[i].write(true);
@@ -55,7 +55,7 @@ SC_MODULE(RegisterBank) {
           new Register<DATA_BITS>(sc_module_name(register_name.c_str()));
       registers[i]->clock(clock);
       registers[i]->reset(reset);
-      registers[i]->write(register_writes[i]);
+      registers[i]->write_enable(register_writes[i]);
       registers[i]->input(register_inputs[i]);
       registers[i]->output(register_outputs[i]);
     }

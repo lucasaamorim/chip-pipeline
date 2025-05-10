@@ -17,11 +17,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(systemc)
 
 # Diretórios de cabeçalhos
-include_directories(chip-pipeline src/components)
+include_directories(chip-pipeline src/components src/pipeline)
 
 # Arquivos de fontes
 file(GLOB SOURCES src/*/*.cpp)
-file(GLOB TESTBENCH_SOURCES testbench/*.cpp)
+file(GLOB TESTBENCH_SOURCES testbench/*/*.cpp)
 
 # Gerando o executável principal
 add_executable(chip-pipeline src/main.cpp ${SOURCES})
@@ -35,7 +35,7 @@ foreach(TESTBENCH_FILE ${TESTBENCH_SOURCES})
   get_filename_component(TESTBENCH_NAME ${TESTBENCH_FILE} NAME_WE)
 
   # Adicionando o diretório dos cabeçalhos
-  include_directories(${TESTBENCH_NAME} src/components)
+  include_directories(${TESTBENCH_NAME} src/components src/pipeline)
 
   # Definindo o alvo para cada testbench
   add_executable(${TESTBENCH_NAME} ${TESTBENCH_FILE} ${SOURCES})

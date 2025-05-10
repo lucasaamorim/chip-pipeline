@@ -8,7 +8,7 @@ SC_MODULE(TestbenchRegBank) {
 
   // Sinais de controle
   sc_signal<bool> reset;
-  sc_signal<bool> write;
+  sc_signal<bool> write_enable;
 
   // Sinais de endereço
   sc_signal<sc_uint<5>> read_address_1;
@@ -28,7 +28,7 @@ SC_MODULE(TestbenchRegBank) {
 
     bank->clock(clock);
     bank->reset(reset);
-    bank->write(write);
+    bank->write_enable(write_enable);
     bank->read_address_1(read_address_1);
     bank->read_address_2(read_address_2);
     bank->write_address(write_address);
@@ -43,7 +43,7 @@ SC_MODULE(TestbenchRegBank) {
   void stimulus() {
     // Inicialização
     reset.write(true);
-    write.write(false);
+    write_enable.write(false);
     input.write(0);
     wait(10, SC_NS); // espera 1 ciclo de clock
 
@@ -53,10 +53,10 @@ SC_MODULE(TestbenchRegBank) {
     // Escreve valor 123 no registrador 5
     write_address.write(5);
     input.write(123);
-    write.write(true);
+    write_enable.write(true);
     wait(10, SC_NS); // Subida do clock para escrita
 
-    write.write(false);
+    write_enable.write(false);
     wait(10, SC_NS); // Clock de estabilidade
 
     // Lê registradores 5 e 0
@@ -72,10 +72,10 @@ SC_MODULE(TestbenchRegBank) {
     // Escreve valor 888 no registrador 10
     write_address.write(10);
     input.write(888);
-    write.write(true);
+    write_enable.write(true);
     wait(10, SC_NS);
 
-    write.write(false);
+    write_enable.write(false);
     wait(10, SC_NS);
 
     // Lê registradores 10 e 5
