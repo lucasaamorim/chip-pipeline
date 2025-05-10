@@ -4,17 +4,21 @@
 #ifndef MULTIPLEXER_HPP
 #define MULTIPLEXER_HPP
 
-#include <systemc.h>
+#include <systemc>
 
-template <unsigned int DATA_BITS = 32> SC_MODULE(Multiplexer) {
+using namespace sc_core;
+using namespace sc_dt;
+
+template <unsigned int DATA_BITS = 32, unsigned int SELECT_BITS = 1>
+SC_MODULE(Multiplexer) {
 public:
+  static const unsigned int INPUTS_COUNT = 1 << SELECT_BITS;
+
   // Entradas
   sc_in<bool> clock;
   sc_in<bool> reset;
-
-  sc_in<sc_uint<DATA_BITS>> input_1;
-  sc_in<sc_uint<DATA_BITS>> input_2;
-  sc_in<bool> select;
+  sc_vector<sc_in<sc_uint<DATA_BITS>>> inputs;
+  sc_in<sc_uint<SELECT_BITS>> select;
 
   // Saída
   sc_out<sc_uint<DATA_BITS>> output;
@@ -23,14 +27,23 @@ public:
     if (reset.read()) {
       output.write(0);
     } else {
-      output.write(select.read() ? input_2.read() : input_1.read());
+      unsigned int sel = select.read();
+      if (sel < INPUTS_COUNT)
+        output.write(inputs[sel].read());
+      else
+        output.write(0); // fallback se select inválido
     }
   }
 
-  SC_CTOR(Multiplexer) {
+  SC_CTOR(Multiplexer)
+      : inputs("inputs", INPUTS_COUNT) // inicializa sc_vector
+  {
     SC_METHOD(process);
     dont_initialize();
-    sensitive << input_1 << input_2 << select;
+    sensitive << reset << select;
+    for (unsigned int i = 0; i < INPUTS_COUNT; ++i) {
+      sensitive << inputs[i];
+    }
   }
 };
 

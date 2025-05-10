@@ -21,7 +21,7 @@ include_directories(chip-pipeline src/components src/pipeline)
 
 # Arquivos de fontes
 file(GLOB SOURCES src/*/*.cpp)
-file(GLOB TESTBENCH_SOURCES testbench/*/*.cpp)
+file(GLOB_RECURSE TESTBENCH_SOURCES testbench/*.cpp)
 
 # Gerando o executável principal
 add_executable(chip-pipeline src/main.cpp ${SOURCES})
