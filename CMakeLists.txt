@@ -35,9 +35,8 @@ foreach(TESTBENCH_FILE ${TESTBENCH_SOURCES})
   get_filename_component(TESTBENCH_NAME ${TESTBENCH_FILE} NAME_WE)
 
   # Adicionando o diretório dos cabeçalhos
-   include_directories(${TESTBENCH_NAME} src/components)
+  include_directories(${TESTBENCH_NAME} src/components)
 
-  
   # Definindo o alvo para cada testbench
   add_executable(${TESTBENCH_NAME} ${TESTBENCH_FILE} ${SOURCES})
   
