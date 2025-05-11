@@ -63,7 +63,8 @@ SC_MODULE(RegisterBank) {
 
     SC_METHOD(process);
     dont_initialize();
-    sensitive << clock.pos() << reset.pos();
+    sensitive << read_address_1 << read_address_2 << write_address << input
+              << clock.pos() << reset.pos();
   }
 };
 
