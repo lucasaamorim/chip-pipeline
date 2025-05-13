@@ -2,6 +2,7 @@
 #define INSTRUCT_DECODER_HPP
 
 #include "control/ControlUnit.hpp"
+#include "mux/Multiplexer.hpp"
 #include "register/bank/RegisterBank.hpp"
 #include <iostream>
 #include <systemc>
@@ -53,10 +54,12 @@ SC_MODULE(InstructionDecoder) {
   /// Componentes
   RegisterBank<DATA_BITS, REGISTER_BITS> *register_bank;
   ControlUnit *control_unit;
+  Multiplexer<PC_ADDRESS_BITS> *jump_pc_mux;
 
   /// Sinais
   sc_signal<sc_uint<6>> opcode;
   sc_signal<sc_uint<PC_ADDRESS_BITS>> jump_pc;
+  sc_signal<sc_uint<1>> jump_pc_enable;
 
   void process() {
     /// Calcula as posições de inicio e fim de cada sinal
@@ -82,28 +85,15 @@ SC_MODULE(InstructionDecoder) {
     reg_address_2.write(instruction.read().range(rt_init, rt_end));
     reg_address_3.write(instruction.read().range(rd_init, rd_end));
     immediate_i.write(instruction.read().range(imm_init, imm_end));
-    immediate_j.write(instruction.read().range(immj_init, immj_end));    
+    immediate_j.write(instruction.read().range(immj_init, immj_end));
   }
 
-  void process_next_pc() {
-    next_pc_out.write(jump.read() ? immediate_j.read() + next_pc.read()
-                                  : next_pc.read());
+  void jump_pc_mux_process() {
+    jump_pc.write(next_pc.read() + immediate_j.read());
+    jump_pc_enable.write(jump.read() ? 1 : 0);
   }
 
   SC_CTOR(InstructionDecoder) {
-    /// Inicializa o banco de registradores
-    register_bank = new RegisterBank<DATA_BITS, REGISTER_BITS>("register_bank");
-
-    register_bank->clock(clock);
-    register_bank->reset(reset);
-    register_bank->write_enable(write_enable);
-    register_bank->read_address_1(reg_address_1);
-    register_bank->read_address_2(reg_address_2);
-    register_bank->write_address(write_address_in);
-    register_bank->input(write_data);
-    register_bank->output_1(read_data_1);
-    register_bank->output_2(read_data_2);
-
     /// Inicializa a unidade de controle
     control_unit = new ControlUnit("control_unit");
 
@@ -119,13 +109,36 @@ SC_MODULE(InstructionDecoder) {
     control_unit->reg_dst(reg_dst);
     control_unit->alu_op(alu_op);
 
+    /// Inicializa o banco de registradores
+    register_bank = new RegisterBank<DATA_BITS, REGISTER_BITS>("register_bank");
+
+    register_bank->clock(clock);
+    register_bank->reset(reset);
+    register_bank->write_enable(write_enable);
+    register_bank->read_address_1(reg_address_1);
+    register_bank->read_address_2(reg_address_2);
+    register_bank->write_address(write_address_in);
+    register_bank->input(write_data);
+    register_bank->output_1(read_data_1);
+    register_bank->output_2(read_data_2);
+
+    /// Incializa o multiplexador
+    jump_pc_mux = new Multiplexer<PC_ADDRESS_BITS>("jump_pc_mux");
+
+    jump_pc_mux->clock(clock);
+    jump_pc_mux->reset(reset);
+    jump_pc_mux->inputs[0](next_pc);
+    jump_pc_mux->inputs[1](jump_pc);
+    jump_pc_mux->select(jump_pc_enable);
+    jump_pc_mux->output(next_pc_out);
+
     SC_METHOD(process);
     dont_initialize();
-    sensitive << clock.pos() << reset.pos();
+    sensitive << clock.pos();
 
-    SC_METHOD(process_next_pc);
+    SC_METHOD(jump_pc_mux_process);
     dont_initialize();
-    sensitive << jump;
+    sensitive << jump.pos();
   }
 };
 

@@ -93,64 +93,74 @@ SC_MODULE(TestbenchInstructionDecoder) {
     write_register(2, 40);
     write_register(3, 20);
     write_register(4, 30);
-    wait(10, SC_NS);
 
     // === Teste Tipo R: ADD ===
-    {
-      std::cout << "\n===== Teste Tipo R: ADD =====\n";
 
+    wait(10, SC_NS);
+
+    {
       sc_uint<32> instr = 0;
       instr.range(31, 26) = 0b000111; // opcode ADD
-      instr.range(25, 21) = 1;        // rs = R1
-      instr.range(20, 16) = 2;        // rt = R2
-      instr.range(15, 11) = 3;        // rd = R3
+      instr.range(25, 22) = 1;        // rs = R1
+      instr.range(21, 18) = 2;        // rt = R2
+      instr.range(17, 14) = 3;        // rd = R3
 
       instruction.write(instr);
+
       wait(10, SC_NS);
 
+      std::cout << "\n===== Teste Tipo R: ADD =====\n";
+
+      std::cout << "Reg1 (R1) valor esperado: 10 => " << read_data_1.read()
+                << "\n";
+      std::cout << "Reg2 (R2) valor esperado: 40 => " << read_data_2.read()
+                << "\n";
+      std::cout << "Reg3 (R3): " << reg_address_3.read() << " (esperado: 3)\n";
       std::cout << "ALU_OP esperado: 7 -> lido: " << alu_op.read() << "\n";
+      std::cout << "reg_write_enable esperado: 1 -> lido: "
+                << reg_write_enable.read() << "\n";
+      std::cout << "alu_src esperado: 0 -> lido: " << alu_src.read() << "\n";
       std::cout << "reg_dst esperado: 1 -> lido: " << reg_dst.read() << "\n";
-      std::cout << "R1 (esperado 10): " << read_data_1.read() << "\n";
-      std::cout << "R2 (esperado 40): " << read_data_2.read() << "\n";
-      std::cout << "R3 (esperado 3): " << reg_address_3.read()
+      std::cout << "next_pc_out esperado: 10 -> lido: " << next_pc_out.read()
                 << "\n";
     }
 
     // === Teste Tipo I: SUBI ===
-    {
-      std::cout << "\n===== Teste Tipo I: SUBI =====\n";
 
+    {
       sc_uint<32> instr = 0;
       instr.range(31, 26) = 0b101000; // opcode SUBI
-      instr.range(25, 21) = 1;        // rs = R1
-      instr.range(20, 16) = 4;        // rt = R4 (destino)
-      instr.range(15, 0) = 17;    // imediato 17
+      instr.range(25, 22) = 1;        // rs = R1
+      instr.range(21, 18) = 4;        // rt = R4 (destino)
+      instr.range(17, 0) = 1294;      // imediato 1294
 
       instruction.write(instr);
       wait(10, SC_NS);
 
-      std::cout << "Immediate_i esperado: 17 -> lido: "
-                << immediate_i.read() << "\n";
+      std::cout << "\n===== Teste Tipo I: SUBI =====\n";
+
+      std::cout << "Immediate_i esperado: 1294 -> lido: " << immediate_i.read()
+                << "\n";
       std::cout << "ALU_OP esperado: 8 -> lido: " << alu_op.read() << "\n";
       std::cout << "reg_write_enable esperado: 1 -> lido: "
                 << reg_write_enable.read() << "\n";
       std::cout << "alu_src esperado: 1 -> lido: " << alu_src.read() << "\n";
       std::cout << "reg_dst esperado: 0 -> lido: " << reg_dst.read() << "\n";
-      std::cout << "Destino esperado: 4 -> lido: " << reg_address_3.read()
+      std::cout << "Reg1 (R1) valor esperado: 10 => " << read_data_1.read()
                 << "\n";
+      std::cout << "Reg2 (R2) => " << reg_address_2.read() << " (esperado 4)\n";
     }
 
     // === Teste Tipo J: JUMP ===
     {
-      std::cout << "\n===== Teste Tipo J: JUMP =====\n";
-
       sc_uint<32> instr = 0;
       instr.range(31, 26) = 0b111111; // opcode JUMP
-      instr.range(25, 18) = 32;     // immediate_j = 0x21
+      instr.range(25, 18) = 32;       // immediate_j = 0x21
 
       instruction.write(instr);
       wait(10, SC_NS);
 
+      std::cout << "\n===== Teste Tipo J: JUMP =====\n";
       std::cout << "Jump esperado: 1 -> lido: " << jump.read() << "\n";
       std::cout << "Immediate_j esperado: 32 -> lido: " << immediate_j.read()
                 << "\n";
