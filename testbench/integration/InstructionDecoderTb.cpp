@@ -23,6 +23,19 @@ SC_MODULE(TestbenchInstructionDecoder) {
   sc_signal<sc_uint<32>> immediate_i;
   sc_signal<sc_uint<8>> immediate_j;
 
+  // Novos sinais de controle
+  sc_signal<bool> reg_write_enable;
+  sc_signal<bool> mem_read_enable;
+  sc_signal<bool> mem_write_enable;
+  sc_signal<bool> alu_src;
+  sc_signal<bool> jump;
+  sc_signal<bool> branch_z;
+  sc_signal<bool> branch_n;
+  sc_signal<bool> reg_dst;
+  sc_signal<sc_uint<4>> alu_op;
+
+  sc_signal<sc_uint<8>> next_pc_out;
+
   InstructionDecoder<32, 4, 8, 32> *decoder;
 
   SC_CTOR(TestbenchInstructionDecoder) : clock("clock", 10, SC_NS) {
@@ -30,10 +43,10 @@ SC_MODULE(TestbenchInstructionDecoder) {
 
     decoder->clock(clock);
     decoder->reset(reset);
-    decoder->write_enable(write_enable);
     decoder->instruction(instruction);
     decoder->next_pc(next_pc);
     decoder->write_address_in(write_address_in);
+    decoder->write_enable(write_enable);
     decoder->write_data(write_data);
 
     decoder->read_data_1(read_data_1);
@@ -44,14 +57,26 @@ SC_MODULE(TestbenchInstructionDecoder) {
     decoder->immediate_i(immediate_i);
     decoder->immediate_j(immediate_j);
 
+    decoder->reg_write_enable(reg_write_enable);
+    decoder->mem_read_enable(mem_read_enable);
+    decoder->mem_write_enable(mem_write_enable);
+    decoder->alu_src(alu_src);
+    decoder->jump(jump);
+    decoder->branch_z(branch_z);
+    decoder->branch_n(branch_n);
+    decoder->reg_dst(reg_dst);
+    decoder->alu_op(alu_op);
+
+    decoder->next_pc_out(next_pc_out);
+
     SC_THREAD(stimulus);
     sensitive << clock.posedge_event();
   }
 
   void write_register(unsigned int addr, unsigned int value) {
     write_enable.write(true);
-    write_address_in.write(addr);
     write_data.write(value);
+    write_address_in.write(addr);
     wait(10, SC_NS);
     write_enable.write(false);
     wait(10, SC_NS);
@@ -60,45 +85,82 @@ SC_MODULE(TestbenchInstructionDecoder) {
   void stimulus() {
     reset.write(false);
     write_enable.write(false);
+    next_pc.write(10); // PC atual
     wait(10, SC_NS);
 
-    // Etapa 1: Escreve valores em registradores R0-R3
+    // Etapa 1: Escreve valores em registradores R1 e R2
     write_register(1, 10);
-    write_register(2, 20);
-    write_register(3, 30);
-    write_register(4, 40);
-
-    // Aguarde um ciclo de clock para garantir que a escrita nos registradores
-    // foi concluída
+    write_register(2, 40);
+    write_register(3, 20);
+    write_register(4, 30);
     wait(10, SC_NS);
 
-    // Etapa 2: Envia instrução fictícia para testar leitura
-    sc_uint<32> instr = 0;
-    instr.range(31, 26) = 20;    // opcode
-    instr.range(25, 22) = 1;     // reg1
-    instr.range(21, 18) = 2;     // reg2
-    instr.range(17, 14) = 3;     // reg3
-    instr.range(13, 0) = 0x00AB; // immediate_i fictício (14 bits apenas)
+    // === Teste Tipo R: ADD ===
+    {
+      std::cout << "\n===== Teste Tipo R: ADD =====\n";
 
-    instruction.write(instr);
-    wait(10, SC_NS);
+      sc_uint<32> instr = 0;
+      instr.range(31, 26) = 0b000111; // opcode ADD
+      instr.range(25, 21) = 1;        // rs = R1
+      instr.range(20, 16) = 2;        // rt = R2
+      instr.range(15, 11) = 3;        // rd = R3
 
-    std::cout << "Instrução enviada: " << instr.to_string(SC_BIN) << "\n";
+      instruction.write(instr);
+      wait(10, SC_NS);
 
-    // Checa se os registradores foram lidos corretamente
-    std::cout << "Reg1 (R1) valor esperado: 10 => " << read_data_1.read()
-              << "\n";
-    std::cout << "Reg2 (R2) valor esperado: 20 => " << read_data_2.read()
-              << "\n";
-    std::cout << "Reg3 (R3): " << reg_address_3.read() << " (esperado: 3)\n";
+      std::cout << "ALU_OP esperado: 7 -> lido: " << alu_op.read() << "\n";
+      std::cout << "reg_dst esperado: 1 -> lido: " << reg_dst.read() << "\n";
+      std::cout << "R1 (esperado 10): " << read_data_1.read() << "\n";
+      std::cout << "R2 (esperado 40): " << read_data_2.read() << "\n";
+      std::cout << "R3 (esperado 3): " << reg_address_3.read()
+                << "\n";
+    }
 
-    std::cout << "Immediate I: " << immediate_i.read()
-              << " (esperado: 0x00AB)\n";
+    // === Teste Tipo I: SUBI ===
+    {
+      std::cout << "\n===== Teste Tipo I: SUBI =====\n";
 
-    std::cout << "Immediate J: " << immediate_j.read()
-              << " (esperado: parte alta da instrução como bits 25-18 com "
-                 "tamanho 8)\n";
+      sc_uint<32> instr = 0;
+      instr.range(31, 26) = 0b101000; // opcode SUBI
+      instr.range(25, 21) = 1;        // rs = R1
+      instr.range(20, 16) = 4;        // rt = R4 (destino)
+      instr.range(15, 0) = 17;    // imediato 17
 
+      instruction.write(instr);
+      wait(10, SC_NS);
+
+      std::cout << "Immediate_i esperado: 17 -> lido: "
+                << immediate_i.read() << "\n";
+      std::cout << "ALU_OP esperado: 8 -> lido: " << alu_op.read() << "\n";
+      std::cout << "reg_write_enable esperado: 1 -> lido: "
+                << reg_write_enable.read() << "\n";
+      std::cout << "alu_src esperado: 1 -> lido: " << alu_src.read() << "\n";
+      std::cout << "reg_dst esperado: 0 -> lido: " << reg_dst.read() << "\n";
+      std::cout << "Destino esperado: 4 -> lido: " << reg_address_3.read()
+                << "\n";
+    }
+
+    // === Teste Tipo J: JUMP ===
+    {
+      std::cout << "\n===== Teste Tipo J: JUMP =====\n";
+
+      sc_uint<32> instr = 0;
+      instr.range(31, 26) = 0b111111; // opcode JUMP
+      instr.range(25, 18) = 32;     // immediate_j = 0x21
+
+      instruction.write(instr);
+      wait(10, SC_NS);
+
+      std::cout << "Jump esperado: 1 -> lido: " << jump.read() << "\n";
+      std::cout << "Immediate_j esperado: 32 -> lido: " << immediate_j.read()
+                << "\n";
+
+      // next_pc era 0x10, esperado: 0x10 + 0x21 = 0x31
+      std::cout << "Jump PC esperado: 42 -> lido: " << next_pc_out.read()
+                << "\n";
+    }
+
+    std::cout << "\n===== Fim dos testes =====\n";
     sc_stop();
   }
 };

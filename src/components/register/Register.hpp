@@ -1,6 +1,7 @@
 #ifndef REGISTER_HPP
 #define REGISTER_HPP
 
+#include <iostream>
 #include <systemc>
 
 using namespace sc_core;
