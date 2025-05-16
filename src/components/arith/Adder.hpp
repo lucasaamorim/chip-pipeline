@@ -10,10 +10,10 @@ template <unsigned int DATA_BITS = 32> SC_MODULE(Adder) {
   sc_in<bool> clock;
   sc_in<bool> reset;
 
-  sc_in<sc_uint<DATA_BITS>> input_1;
-  sc_in<sc_uint<DATA_BITS>> input_2;
+  sc_in<sc_int<DATA_BITS>> input_1;
+  sc_in<sc_int<DATA_BITS>> input_2;
 
-  sc_out<sc_uint<DATA_BITS>> output;
+  sc_out<sc_int<DATA_BITS>> output;
 
   void process() {
     if (reset.read()) {

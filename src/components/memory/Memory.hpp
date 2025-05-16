@@ -7,7 +7,8 @@
 using namespace sc_core;
 using namespace sc_dt;
 
-template <unsigned int DATA_BITS = 32, unsigned int ADDRESS_BITS = 8>
+template <unsigned int DATA_BITS = 32, unsigned int ADDRESS_BITS = 8,
+          typename T = sc_int<DATA_BITS>>
 SC_MODULE(Memory) {
   static const unsigned int MEMORY_SIZE = 1 << ADDRESS_BITS;
 
@@ -18,10 +19,10 @@ SC_MODULE(Memory) {
 
   sc_in<sc_uint<ADDRESS_BITS>> address;
 
-  sc_in<sc_uint<DATA_BITS>> input;
-  sc_out<sc_uint<DATA_BITS>> output;
+  sc_in<T> input;
+  sc_out<T> output;
 
-  sc_uint<DATA_BITS> memory[MEMORY_SIZE];
+  T memory[MEMORY_SIZE];
 
   void process() {
     if (write_enable.read()) {
@@ -33,7 +34,7 @@ SC_MODULE(Memory) {
     }
   }
 
-  void initialize(std::vector<sc_uint<DATA_BITS>> data) {
+  void initialize(std::vector<T> data) {
     for (int i = 0; i < MEMORY_SIZE && i < data.size(); i++) {
       memory[i] = data[i];
     }

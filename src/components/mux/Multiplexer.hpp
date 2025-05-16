@@ -9,7 +9,8 @@
 using namespace sc_core;
 using namespace sc_dt;
 
-template <unsigned int DATA_BITS = 32, unsigned int SELECT_BITS = 1>
+template <unsigned int DATA_BITS = 32, unsigned int SELECT_BITS = 1,
+          typename T = sc_int<DATA_BITS>>
 SC_MODULE(Multiplexer) {
 public:
   static const unsigned int INPUTS_COUNT = 1 << SELECT_BITS;
@@ -17,11 +18,11 @@ public:
   // Entradas
   sc_in<bool> clock;
   sc_in<bool> reset;
-  sc_vector<sc_in<sc_uint<DATA_BITS>>> inputs;
+  sc_vector<sc_in<T>> inputs;
   sc_in<sc_uint<SELECT_BITS>> select;
 
   // Saída
-  sc_out<sc_uint<DATA_BITS>> output;
+  sc_out<T> output;
 
   void process() {
     if (reset.read()) {

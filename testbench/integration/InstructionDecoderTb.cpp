@@ -6,34 +6,31 @@ using namespace sc_dt;
 
 SC_MODULE(TestbenchInstructionDecoder) {
   sc_clock clock;
-
   sc_signal<bool> reset;
   sc_signal<bool> write_enable;
 
   sc_signal<sc_uint<32>> instruction;
   sc_signal<sc_uint<8>> next_pc;
   sc_signal<sc_uint<4>> write_address_in;
-  sc_signal<sc_uint<32>> write_data;
+  sc_signal<sc_int<32>> write_data;
+  sc_signal<sc_int<32>> alu_result;
 
-  sc_signal<sc_uint<32>> read_data_1;
-  sc_signal<sc_uint<32>> read_data_2;
   sc_signal<sc_uint<4>> reg_address_1;
   sc_signal<sc_uint<4>> reg_address_2;
   sc_signal<sc_uint<4>> reg_address_3;
-  sc_signal<sc_uint<32>> immediate_i;
-  sc_signal<sc_uint<8>> immediate_j;
+  sc_signal<sc_int<32>> immediate_i;
 
-  // Novos sinais de controle
+  sc_signal<sc_int<32>> read_data_1;
+  sc_signal<sc_int<32>> read_data_2;
+
   sc_signal<bool> reg_write_enable;
   sc_signal<bool> mem_read_enable;
   sc_signal<bool> mem_write_enable;
   sc_signal<bool> alu_src;
-  sc_signal<bool> jump;
-  sc_signal<bool> branch_z;
-  sc_signal<bool> branch_n;
   sc_signal<bool> reg_dst;
   sc_signal<sc_uint<4>> alu_op;
 
+  sc_signal<sc_uint<1>> jump_pc_enable;
   sc_signal<sc_uint<8>> next_pc_out;
 
   InstructionDecoder<32, 4, 8, 32> *decoder;
@@ -43,30 +40,30 @@ SC_MODULE(TestbenchInstructionDecoder) {
 
     decoder->clock(clock);
     decoder->reset(reset);
+    decoder->write_enable(write_enable);
+
     decoder->instruction(instruction);
     decoder->next_pc(next_pc);
     decoder->write_address_in(write_address_in);
-    decoder->write_enable(write_enable);
     decoder->write_data(write_data);
+    decoder->alu_result(alu_result);
 
-    decoder->read_data_1(read_data_1);
-    decoder->read_data_2(read_data_2);
     decoder->reg_address_1(reg_address_1);
     decoder->reg_address_2(reg_address_2);
     decoder->reg_address_3(reg_address_3);
     decoder->immediate_i(immediate_i);
-    decoder->immediate_j(immediate_j);
+
+    decoder->read_data_1(read_data_1);
+    decoder->read_data_2(read_data_2);
 
     decoder->reg_write_enable(reg_write_enable);
     decoder->mem_read_enable(mem_read_enable);
     decoder->mem_write_enable(mem_write_enable);
     decoder->alu_src(alu_src);
-    decoder->jump(jump);
-    decoder->branch_z(branch_z);
-    decoder->branch_n(branch_n);
     decoder->reg_dst(reg_dst);
     decoder->alu_op(alu_op);
 
+    decoder->jump_pc_enable(jump_pc_enable);
     decoder->next_pc_out(next_pc_out);
 
     SC_THREAD(stimulus);
@@ -151,22 +148,61 @@ SC_MODULE(TestbenchInstructionDecoder) {
       std::cout << "Reg2 (R2) => " << reg_address_2.read() << " (esperado 4)\n";
     }
 
+    // === Teste Tipo J: BRANCH N (correto) ===
+    {
+      sc_uint<32> instr = 0;
+      instr.range(31, 26) = 0b111000; // opcode BRANCH N
+      instr.range(25, 18) = 32;       // immediate_j = 32
+
+      instruction.write(instr);
+
+      alu_result.write(-10);
+      wait(10, SC_NS);
+
+      std::cout << "\n===== Teste Tipo J: BRANCH N (correto) =====\n";
+      std::cout << "Jump PC Enable esperado: 1 -> lido: "
+                << jump_pc_enable.read() << "\n";
+
+      // next_pc era 10, esperado: 10 + 32 = 42
+      std::cout << "Jump PC esperado: 42 -> lido: " << next_pc_out.read()
+                << "\n";
+    }
+
+    // === Teste Tipo J: BRANCH N (incorreto) ===
+    {
+      sc_uint<32> instr = 0;
+      instr.range(31, 26) = 0b111000; // opcode BRANCH N
+      instr.range(25, 18) = 20;       // immediate_j = 20
+
+      instruction.write(instr);
+
+      alu_result.write(15);
+      wait(10, SC_NS);
+
+      std::cout << "\n===== Teste Tipo J: BRANCH N (incorreto) =====\n";
+      std::cout << "Jump PC Enable esperado: 0 -> lido: "
+                << jump_pc_enable.read() << "\n";
+
+      // next_pc era 10, esperado: 10
+      std::cout << "Jump PC esperado: 10 -> lido: " << next_pc_out.read()
+                << "\n";
+    }
+
     // === Teste Tipo J: JUMP ===
     {
       sc_uint<32> instr = 0;
-      instr.range(31, 26) = 0b111111; // opcode JUMP
-      instr.range(25, 18) = 32;       // immediate_j = 0x21
+      instr.range(31, 26) = 0b111111; // opcode BRANCH N
+      instr.range(25, 18) = 126;      // immediate_j = 126
 
       instruction.write(instr);
       wait(10, SC_NS);
 
       std::cout << "\n===== Teste Tipo J: JUMP =====\n";
-      std::cout << "Jump esperado: 1 -> lido: " << jump.read() << "\n";
-      std::cout << "Immediate_j esperado: 32 -> lido: " << immediate_j.read()
-                << "\n";
+      std::cout << "Jump PC Enable esperado: 1 -> lido: "
+                << jump_pc_enable.read() << "\n";
 
-      // next_pc era 0x10, esperado: 0x10 + 0x21 = 0x31
-      std::cout << "Jump PC esperado: 42 -> lido: " << next_pc_out.read()
+      // next_pc era 10, esperado: 10 + 126 = 136
+      std::cout << "Jump PC esperado: 136 -> lido: " << next_pc_out.read()
                 << "\n";
     }
 

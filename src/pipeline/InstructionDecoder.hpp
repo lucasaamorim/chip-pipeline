@@ -10,6 +10,9 @@
 using namespace sc_core;
 using namespace sc_dt;
 
+/// Recebe os dados, decodifica, manda os dados de saída: Dado1, Dado2,
+/// Imediato, AluSrcB, REG_A, REG_B, REG_C Processar NextPC, Jump, BranchZ,
+/// BranchN internamente (pode receber os dados de saída da ULA)
 template <unsigned int DATA_BITS = 32, unsigned int REGISTER_BITS = 4,
           unsigned int PC_ADDRESS_BITS = 8, unsigned int INSTRUCTION_BITS = 32>
 SC_MODULE(InstructionDecoder) {
@@ -18,48 +21,51 @@ SC_MODULE(InstructionDecoder) {
   /// Entradas base
   sc_in<bool> clock;
   sc_in<bool> reset;
+  sc_in<bool> write_enable;
 
   /// Entradas dos componentes
   sc_in<sc_uint<INSTRUCTION_BITS>> instruction;
   sc_in<sc_uint<PC_ADDRESS_BITS>> next_pc;
   sc_in<sc_uint<REGISTER_BITS>> write_address_in;
-  sc_in<bool> write_enable;
-  sc_in<sc_uint<DATA_BITS>> write_data;
+  sc_in<sc_int<DATA_BITS>> write_data;
+  sc_in<sc_int<DATA_BITS>> alu_result;
 
   /// Saídas da instrução
   sc_out<sc_uint<REGISTER_BITS>> reg_address_1;
   sc_out<sc_uint<REGISTER_BITS>> reg_address_2;
   sc_out<sc_uint<REGISTER_BITS>> reg_address_3;
-  sc_out<sc_uint<DATA_BITS>> immediate_i;
-  sc_out<sc_uint<PC_ADDRESS_BITS>> immediate_j;
+  sc_out<sc_int<DATA_BITS>> immediate_i;
 
   /// Saídas do banco de registradores
-  sc_out<sc_uint<DATA_BITS>> read_data_1;
-  sc_out<sc_uint<DATA_BITS>> read_data_2;
+  sc_out<sc_int<DATA_BITS>> read_data_1;
+  sc_out<sc_int<DATA_BITS>> read_data_2;
 
   /// Saídas do control unit
   sc_out<bool> reg_write_enable;
   sc_out<bool> mem_read_enable;
   sc_out<bool> mem_write_enable;
   sc_out<bool> alu_src;
-  sc_out<bool> jump;
-  sc_out<bool> branch_z;
-  sc_out<bool> branch_n;
   sc_out<bool> reg_dst;
   sc_out<sc_uint<4>> alu_op;
 
   /// Saída do jump_pc
+  sc_out<sc_uint<1>> jump_pc_enable;
   sc_out<sc_uint<PC_ADDRESS_BITS>> next_pc_out;
 
   /// Componentes
   RegisterBank<DATA_BITS, REGISTER_BITS> *register_bank;
   ControlUnit *control_unit;
-  Multiplexer<PC_ADDRESS_BITS> *jump_pc_mux;
+  Multiplexer<PC_ADDRESS_BITS, 1, sc_uint<PC_ADDRESS_BITS>> *jump_pc_mux;
 
   /// Sinais
   sc_signal<sc_uint<6>> opcode;
   sc_signal<sc_uint<PC_ADDRESS_BITS>> jump_pc;
-  sc_signal<sc_uint<1>> jump_pc_enable;
+
+  /// Sinais de Jump
+  sc_signal<sc_uint<PC_ADDRESS_BITS>> immediate_j;
+  sc_signal<bool> jump;
+  sc_signal<bool> branch_z;
+  sc_signal<bool> branch_n;
 
   void process() {
     /// Calcula as posições de inicio e fim de cada sinal
@@ -84,13 +90,24 @@ SC_MODULE(InstructionDecoder) {
     reg_address_1.write(instruction.read().range(rs_init, rs_end));
     reg_address_2.write(instruction.read().range(rt_init, rt_end));
     reg_address_3.write(instruction.read().range(rd_init, rd_end));
-    immediate_i.write(instruction.read().range(imm_init, imm_end));
+    immediate_i.write(
+        sc_int<DATA_BITS>(instruction.read().range(imm_init, imm_end)));
     immediate_j.write(instruction.read().range(immj_init, immj_end));
   }
 
-  void jump_pc_mux_process() {
+  void jump_and_branch_process() {
     jump_pc.write(next_pc.read() + immediate_j.read());
-    jump_pc_enable.write(jump.read() ? 1 : 0);
+
+    if (branch_z.read() == 1 && alu_result.read() == 0) {
+      jump_pc_enable.write(1);
+    } else if (branch_n.read() == 1 && alu_result.read() < 0) {
+      jump_pc_enable.write(1);
+    } else if (jump.read() == 1) {
+      jump_pc_enable.write(1);
+    } else {
+      jump_pc_enable.write(0);
+      return;
+    }
   }
 
   SC_CTOR(InstructionDecoder) {
@@ -123,7 +140,8 @@ SC_MODULE(InstructionDecoder) {
     register_bank->output_2(read_data_2);
 
     /// Incializa o multiplexador
-    jump_pc_mux = new Multiplexer<PC_ADDRESS_BITS>("jump_pc_mux");
+    jump_pc_mux = new Multiplexer<PC_ADDRESS_BITS, 1, sc_uint<PC_ADDRESS_BITS>>(
+        "jump_pc_mux");
 
     jump_pc_mux->clock(clock);
     jump_pc_mux->reset(reset);
@@ -136,9 +154,9 @@ SC_MODULE(InstructionDecoder) {
     dont_initialize();
     sensitive << clock.pos();
 
-    SC_METHOD(jump_pc_mux_process);
+    SC_METHOD(jump_and_branch_process);
     dont_initialize();
-    sensitive << jump.pos();
+    sensitive << jump << branch_z << branch_n << alu_result;
   }
 };
 

@@ -7,21 +7,21 @@ using namespace sc_dt;
 SC_MODULE(TestbenchMux) {
   // Sinais de entrada
   sc_signal<bool> reset;
-  sc_signal<sc_uint<32>> input_0;
-  sc_signal<sc_uint<32>> input_1;
+  sc_signal<sc_int<32>> input_0;
+  sc_signal<sc_int<32>> input_1;
   sc_signal<sc_uint<1>> select;
 
   // Sinal de saída
-  sc_signal<sc_uint<32>> output;
+  sc_signal<sc_int<32>> output;
 
   // Instância do multiplexador
-  Multiplexer<32, 1> *mux;
+  Multiplexer<32, 1, sc_int<32>> *mux;
 
   // Clock
   sc_clock clock;
 
   SC_CTOR(TestbenchMux) : clock("clock", 10, SC_NS) {
-    mux = new Multiplexer<32, 1>("Multiplexer");
+    mux = new Multiplexer<32, 1, sc_int<32>>("Multiplexer");
 
     // Conectando sinais
     mux->clock(clock);

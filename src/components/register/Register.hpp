@@ -7,16 +7,17 @@
 using namespace sc_core;
 using namespace sc_dt;
 
-template <unsigned int BITS = 32, bool READ_BEFORE_WRITE = false>
+template <unsigned int BITS = 32, bool READ_BEFORE_WRITE = false,
+          typename T = sc_int<BITS>>
 SC_MODULE(Register) {
   sc_in<bool> clock;
   sc_in<bool> reset;
   sc_in<bool> write_enable;
 
-  sc_in<sc_uint<BITS>> input;
-  sc_out<sc_uint<BITS>> output;
+  sc_in<T> input;
+  sc_out<T> output;
 
-  sc_uint<BITS> data;
+  T data;
 
   void process() {
     if constexpr (READ_BEFORE_WRITE) {
@@ -43,7 +44,7 @@ SC_MODULE(Register) {
   SC_CTOR(Register) {
     SC_METHOD(process);
     dont_initialize();
-    sensitive << clock.pos() << reset.pos();
+    sensitive << clock.pos() << reset.pos() << input;
   }
 };
 

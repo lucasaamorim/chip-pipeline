@@ -4,7 +4,7 @@
 using namespace sc_core;
 using namespace sc_dt;
 
-SC_MODULE(TestbenchMemory) {
+SC_MODULE(TestbenchMemoryInt) {
   // Clock
   sc_clock clock;
 
@@ -14,14 +14,14 @@ SC_MODULE(TestbenchMemory) {
   sc_signal<bool> read_enable;
 
   sc_signal<sc_uint<8>> address; // 8 bits = 256 posições
-  sc_signal<sc_uint<32>> input;
-  sc_signal<sc_uint<32>> output;
+  sc_signal<sc_int<32>> input;
+  sc_signal<sc_int<32>> output;
 
   // Instância da memória
-  Memory<32, 8> *mem;
+  Memory<32, 8, sc_int<32>> *mem;
 
-  SC_CTOR(TestbenchMemory) : clock("clock", 10, SC_NS) {
-    mem = new Memory<32, 8>("Memory");
+  SC_CTOR(TestbenchMemoryInt) : clock("clock", 10, SC_NS) {
+    mem = new Memory<32, 8, sc_int<32>>("Memory");
 
     mem->clock(clock);
     mem->reset(reset);
@@ -61,6 +61,23 @@ SC_MODULE(TestbenchMemory) {
               << std::endl;
     read_enable.write(false);
 
+    // Escreve valor -20 na posição 15
+    address.write(15);
+    input.write(-20);
+    write_enable.write(true);
+    wait(10, SC_NS);
+
+    write_enable.write(false);
+    wait(10, SC_NS); // estabilização
+
+    // Lê da posição 10
+    read_enable.write(true);
+    wait(10, SC_NS);
+
+    std::cout << "Valor na posição 15: " << output.read() << " (esperado: -20)"
+              << std::endl;
+    read_enable.write(false);
+
     // Reseta a memória chamando a função manualmente
     mem->reset_memory(); // <<<< CHAMADA MANUAL DE RESET
 
@@ -77,7 +94,7 @@ SC_MODULE(TestbenchMemory) {
 };
 
 int sc_main(int argc, char *argv[]) {
-  TestbenchMemory tb("TestbenchMemory");
+  TestbenchMemoryInt tb("TestbenchMemoryInt");
   sc_start();
   return 0;
 }

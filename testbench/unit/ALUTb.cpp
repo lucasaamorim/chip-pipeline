@@ -5,9 +5,9 @@ using namespace sc_core;
 using namespace sc_dt;
 
 SC_MODULE(TestbenchALU) {
-  sc_signal<sc_uint<32>> operand_a, operand_b;
+  sc_signal<sc_int<32>> operand_a, operand_b;
   sc_signal<sc_uint<4>> op;
-  sc_signal<sc_uint<32>> result;
+  sc_signal<sc_int<32>> result;
   sc_signal<bool> zero_flag, negative_flag;
 
   ALU<32>* alu;

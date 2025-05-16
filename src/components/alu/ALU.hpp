@@ -23,10 +23,10 @@ enum AluOperation {
 template <unsigned int DATA_WIDTH = 32>
 class ALU : public sc_module {
 public:
-    sc_in<sc_uint<DATA_WIDTH>> operand_a_in;
-    sc_in<sc_uint<DATA_WIDTH>> operand_b_in;
+    sc_in<sc_int<DATA_WIDTH>> operand_a_in;
+    sc_in<sc_int<DATA_WIDTH>> operand_b_in;
     sc_in<sc_uint<CODE_OPERATION_LENGTH>> operation_select_in;
-    sc_out<sc_uint<DATA_WIDTH>> result_out;
+    sc_out<sc_int<DATA_WIDTH>> result_out;
     sc_out<bool>              zero_flag_out;
     sc_out<bool>              negative_flag_out;
 
@@ -45,9 +45,9 @@ ALU<DATA_BITS>::ALU(sc_module_name name) : sc_module(name) {
 
 template <unsigned int DATA_BITS>
 void ALU<DATA_BITS>::process_operation() {
-    const sc_uint<DATA_BITS> operand_a = operand_a_in.read();
-    const sc_uint<DATA_BITS> operand_b = operand_b_in.read();
-    sc_uint<DATA_BITS> operation_result = 0;
+    const sc_int<DATA_BITS> operand_a = operand_a_in.read();
+    const sc_int<DATA_BITS> operand_b = operand_b_in.read();
+    sc_int<DATA_BITS> operation_result = 0;
 
     switch (operation_select_in.read()) {
         case ALU_AND: operation_result = operand_a & operand_b; break;

@@ -8,10 +8,10 @@ SC_MODULE(TestbenchReg) {
   // Sinais de entrada
   sc_signal<bool> reset;
   sc_signal<bool> write_enable;
-  sc_signal<sc_uint<32>> input;
+  sc_signal<sc_int<32>> input;
 
   // Sinal de saída
-  sc_signal<sc_uint<32>> output;
+  sc_signal<sc_int<32>> output;
 
   // Instância do registrador
   Register<32> *reg;

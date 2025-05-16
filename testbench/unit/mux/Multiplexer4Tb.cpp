@@ -14,13 +14,13 @@ SC_MODULE(TestbenchMux4) {
   sc_signal<sc_uint<32>> output;
 
   // Instância do multiplexador
-  Multiplexer<32, 2> *mux;
+  Multiplexer<32, 2, sc_uint<32>> *mux;
 
   // Clock
   sc_clock clock;
 
   SC_CTOR(TestbenchMux4) : clock("clock", 10, SC_NS) {
-    mux = new Multiplexer<32, 2>("Multiplexer");
+    mux = new Multiplexer<32, 2, sc_uint<32>>("Multiplexer");
 
     // Conectando sinais
     mux->clock(clock);

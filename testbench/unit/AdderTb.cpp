@@ -7,11 +7,11 @@ using namespace sc_dt;
 SC_MODULE(TestbenchAdder) {
   // Sinais de entrada
   sc_signal<bool> reset;
-  sc_signal<sc_uint<32>> input_1;
-  sc_signal<sc_uint<32>> input_2;
+  sc_signal<sc_int<32>> input_1;
+  sc_signal<sc_int<32>> input_2;
 
   // Sinal de saída
-  sc_signal<sc_uint<32>> output;
+  sc_signal<sc_int<32>> output;
 
   // Instância do somador
   Adder<32> *adder;

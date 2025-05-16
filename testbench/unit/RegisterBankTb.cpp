@@ -19,9 +19,9 @@ SC_MODULE(TestbenchRegBank) {
   sc_signal<sc_uint<5>> write_address;
 
   // Sinais de dados
-  sc_signal<sc_uint<32>> input;
-  sc_signal<sc_uint<32>> output_1;
-  sc_signal<sc_uint<32>> output_2;
+  sc_signal<sc_int<32>> input;
+  sc_signal<sc_int<32>> output_1;
+  sc_signal<sc_int<32>> output_2;
 
   // Instância do banco de registradores
   RegisterBank<32, 5> *bank;

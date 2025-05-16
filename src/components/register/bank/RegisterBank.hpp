@@ -21,15 +21,15 @@ SC_MODULE(RegisterBank) {
   sc_in<sc_uint<ADDRESS_BITS>> read_address_2;
   sc_in<sc_uint<ADDRESS_BITS>> write_address;
 
-  sc_in<sc_uint<DATA_BITS>> input;
-  sc_out<sc_uint<DATA_BITS>> output_1;
-  sc_out<sc_uint<DATA_BITS>> output_2;
+  sc_in<sc_int<DATA_BITS>> input;
+  sc_out<sc_int<DATA_BITS>> output_1;
+  sc_out<sc_int<DATA_BITS>> output_2;
 
   Register<DATA_BITS> *registers[REGISTERS];
 
   sc_signal<bool> register_writes[REGISTERS];
-  sc_signal<sc_uint<DATA_BITS>> register_inputs[REGISTERS];
-  sc_signal<sc_uint<DATA_BITS>> register_outputs[REGISTERS];
+  sc_signal<sc_int<DATA_BITS>> register_inputs[REGISTERS];
+  sc_signal<sc_int<DATA_BITS>> register_outputs[REGISTERS];
 
   void process() {
     /// Percorre todos os registradores atualizando os seus sinais
