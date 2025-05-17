@@ -26,8 +26,6 @@ SC_MODULE(ExecuteTb) {
     sc_signal<sc_int<32>> read_data_1;
     sc_signal<sc_int<32>> read_data_2;
     sc_signal<sc_int<32>> immediate_i;
-    sc_signal<bool> branch_z;
-    sc_signal<sc_int<32>> pc_value;
 
     // Registradores da instrução
     sc_signal<sc_uint<4>> reg_address_2;
@@ -41,10 +39,6 @@ SC_MODULE(ExecuteTb) {
     // Saídas
     sc_signal<sc_int<32>> alu_result;
     sc_signal<sc_uint<4>> write_register;
-    sc_signal<bool> branch_taken;
-    sc_signal<sc_int<32>> branch_target;
-    sc_signal<bool> zero_flag;
-    sc_signal<bool> negative_flag;
 
 
     Execute<32, 4> *execute;
@@ -56,8 +50,6 @@ SC_MODULE(ExecuteTb) {
         execute->read_data_1(read_data_1);
         execute->read_data_2(read_data_2);
         execute->immediate_i(immediate_i);
-        execute->branch_z(branch_z);
-        execute->pc_value(pc_value);
         execute->reg_address_2(reg_address_2);
         execute->reg_address_3(reg_address_3);
         execute->alu_src(alu_src);
@@ -65,10 +57,6 @@ SC_MODULE(ExecuteTb) {
         execute->alu_op(alu_op);
         execute->alu_result(alu_result);
         execute->write_register(write_register);
-        execute->branch_taken(branch_taken);
-        execute->branch_target(branch_target);
-        execute->zero_flag(zero_flag);
-        execute->negative_flag(negative_flag);
 
         SC_THREAD(run_tests);
     }
@@ -116,14 +104,10 @@ SC_MODULE(ExecuteTb) {
         reg_address_2 = 1;
         reg_address_3 = 2;
         alu_op = ALU_ADD;
-        branch_z = false;
-        pc_value = 0;
         wait_clock_cycles(1);
 
         print_check("ALU Result", alu_result.read(), sc_int<32>(30));
         print_check("Write Register", write_register.read(), sc_uint<4>(2));
-        print_check("Zero Flag", zero_flag.read(), false);
-        print_check("Negative Flag", negative_flag.read(), false);
 
         // --- Teste SUB
         print_test_header("SUB");
@@ -139,7 +123,6 @@ SC_MODULE(ExecuteTb) {
         read_data_2 = 50;
         wait_clock_cycles(1);
         print_check("ALU Result", alu_result.read(), sc_int<32>(-20));
-        print_check("Negative Flag", negative_flag.read(), true);
 
         // --- Teste SUB zero
         print_test_header("SUB zero");
@@ -147,7 +130,6 @@ SC_MODULE(ExecuteTb) {
         read_data_2 = 50;
         wait_clock_cycles(1);
         print_check("ALU Result", alu_result.read(), sc_int<32>(0));
-        print_check("Zero Flag", zero_flag.read(), true);
 
         // --- Teste AND
         print_test_header("AND");
@@ -182,37 +164,11 @@ SC_MODULE(ExecuteTb) {
         print_check("ALU Result", alu_result.read(), sc_int<32>(150));
         print_check("Write Register", write_register.read(), sc_uint<4>(1));
 
-        // --- Teste branch taken
-        print_test_header("BRANCH TAKEN");
-        read_data_1 = 10;
-        read_data_2 = 10;
-        alu_op = ALU_SUB;
-        branch_z = true;
-        pc_value = 100;
-        immediate_i = 5;
-        wait_clock_cycles(1);
-        print_check("Branch Taken", branch_taken.read(), true);
-        print_check("Branch Target", branch_target.read(), sc_int<32>(120));
-
-        // --- Branch not taken
-        print_test_header("BRANCH NOT TAKEN");
-        read_data_1 = 10;
-        read_data_2 = 20;
-        wait_clock_cycles(1);
-        print_check("Branch Taken", branch_taken.read(), false);
-
-        // --- Não é branch
-        print_test_header("NÃO É BRANCH");
-        branch_z = false;
-        wait_clock_cycles(1);
-        print_check("Branch Taken", branch_taken.read(), false);
-
         // --- Reset final
         print_test_header("RESET");
         reset = true;
         wait_clock_cycles(1);
         print_check("ALU Result", alu_result.read(), sc_int<32>(0));
-        print_check("Branch Taken", branch_taken.read(), false);
         reset = false;
 
         std::cout << "\n--- Todos os testes concluídos ---\n";

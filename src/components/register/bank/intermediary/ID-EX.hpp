@@ -18,45 +18,34 @@ SC_MODULE(ID_EX) {
   sc_in<sc_uint<REGISTER_BITS>> reg_address_2_in;
   sc_in<sc_uint<REGISTER_BITS>> reg_address_3_in;
   sc_in<sc_int<DATA_BITS>> immediate_i_in;
-  sc_in<sc_uint<PC_BITS>> immediate_j_in;
   sc_in<sc_int<DATA_BITS>> read_data_1_in;
   sc_in<sc_int<DATA_BITS>> read_data_2_in;
   sc_in<bool> reg_write_enable_in;
   sc_in<bool> mem_read_enable_in;
   sc_in<bool> mem_write_enable_in;
   sc_in<bool> alu_src_in;
-  sc_in<bool> jump_in;
-  sc_in<bool> branch_z_in;
-  sc_in<bool> branch_n_in;
   sc_in<bool> reg_dst_in;
   sc_in<sc_uint<4>> alu_op_in;
-  sc_in<sc_uint<PC_BITS>> next_pc_in;
 
   // Saídas
   sc_out<sc_uint<REGISTER_BITS>> reg_address_1_out;
   sc_out<sc_uint<REGISTER_BITS>> reg_address_2_out;
   sc_out<sc_uint<REGISTER_BITS>> reg_address_3_out;
   sc_out<sc_int<DATA_BITS>> immediate_i_out;
-  sc_out<sc_uint<PC_BITS>> immediate_j_out;
   sc_out<sc_int<DATA_BITS>> read_data_1_out;
   sc_out<sc_int<DATA_BITS>> read_data_2_out;
   sc_out<bool> reg_write_enable_out;
   sc_out<bool> mem_read_enable_out;
   sc_out<bool> mem_write_enable_out;
   sc_out<bool> alu_src_out;
-  sc_out<bool> jump_out;
-  sc_out<bool> branch_z_out;
-  sc_out<bool> branch_n_out;
   sc_out<bool> reg_dst_out;
   sc_out<sc_uint<4>> alu_op_out;
-  sc_out<sc_uint<PC_BITS>> next_pc_out;
 
   // Registradores
   Register<REGISTER_BITS, true> *reg_address_1, *reg_address_2, *reg_address_3;
   Register<DATA_BITS, true> *immediate_i, *read_data_1, *read_data_2;
-  Register<PC_BITS, true> *immediate_j, *next_pc;
   Register<1, true> *reg_write_enable, *mem_read_enable, *mem_write_enable;
-  Register<1, true> *alu_src, *jump, *branch_z, *branch_n, *reg_dst;
+  Register<1, true> *alu_src, *reg_dst;
   Register<4, true> *alu_op;
 
   SC_CTOR(ID_EX) {
@@ -89,13 +78,6 @@ SC_MODULE(ID_EX) {
     immediate_i->write_enable(true);
     immediate_i->input(immediate_i_in);
     immediate_i->output(immediate_i_out);
-
-    immediate_j = new Register<PC_BITS, true>("immediate_j");
-    immediate_j->clock(clock);
-    immediate_j->reset(reset);
-    immediate_j->write_enable(true);
-    immediate_j->input(immediate_j_in);
-    immediate_j->output(immediate_j_out);
 
     read_data_1 = new Register<DATA_BITS, true>("read_data_1");
     read_data_1->clock(clock);
@@ -140,27 +122,6 @@ SC_MODULE(ID_EX) {
     alu_src->input(alu_src_in);
     alu_src->output(alu_src_out);
 
-    jump = new Register<1, true>("jump");
-    jump->clock(clock);
-    jump->reset(reset);
-    jump->write_enable(true);
-    jump->input(jump_in);
-    jump->output(jump_out);
-
-    branch_z = new Register<1, true>("branch_z");
-    branch_z->clock(clock);
-    branch_z->reset(reset);
-    branch_z->write_enable(true);
-    branch_z->input(branch_z_in);
-    branch_z->output(branch_z_out);
-
-    branch_n = new Register<1, true>("branch_n");
-    branch_n->clock(clock);
-    branch_n->reset(reset);
-    branch_n->write_enable(true);
-    branch_n->input(branch_n_in);
-    branch_n->output(branch_n_out);
-
     reg_dst = new Register<1, true>("reg_dst");
     reg_dst->clock(clock);
     reg_dst->reset(reset);
@@ -174,13 +135,6 @@ SC_MODULE(ID_EX) {
     alu_op->write_enable(true);
     alu_op->input(alu_op_in);
     alu_op->output(alu_op_out);
-
-    next_pc = new Register<PC_BITS, true>("next_pc");
-    next_pc->clock(clock);
-    next_pc->reset(reset);
-    next_pc->write_enable(true);
-    next_pc->input(next_pc_in);
-    next_pc->output(next_pc_out);
   }
 };
 
