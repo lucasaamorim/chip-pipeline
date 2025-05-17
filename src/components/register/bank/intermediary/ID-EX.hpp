@@ -1,141 +1,104 @@
-#ifndef ID_EX_HPP
-#define ID_EX_HPP
+#ifndef EX_MEM_HPP
+#define EX_MEM_HPP
 
-#include "register/Register.hpp"
-#include <systemc>
+#include <systemc.h>
 
-using namespace sc_core;
-using namespace sc_dt;
+/**
+ * @brief Módulo do registrador EX/MEM do pipeline MIPS
+ * 
+ * @tparam DATA_BITS Tamanho em bits dos dados (padrão 32 para MIPS)
+ * @tparam REGISTER_BITS Tamanho em bits do endereço do registrador (padrão 5 para MIPS)
+ * 
+ * Este módulo implementa o registrador de pipeline entre os estágios de Execução (EX)
+ * e Acesso à Memória (MEM). Ele armazena todos os sinais necessários para o estágio
+ * MEM e para o estágio de Write Back (WB) subsequente.
+ */
+template <unsigned int DATA_BITS = 32, unsigned int REGISTER_BITS = 5>
+SC_MODULE(EX_MEM) {
 
-template <unsigned int DATA_BITS = 32, unsigned int PC_BITS = 8,
-          unsigned int REGISTER_BITS = 4>
-SC_MODULE(ID_EX) {
-  sc_in_clk clock;
-  sc_in<bool> reset;
+  sc_in_clk clock;      
+  sc_in<bool> reset;   
+  
+  // ----- Entradas vindas do estágio EX -----
+  
+  // Resultados da execução
+  sc_in<sc_int<DATA_BITS>> alu_result_in;       // Resultado calculado pela ALU
+  sc_in<sc_int<DATA_BITS>> write_data_in;       // Dado a ser escrito na memória (para instruções store)
+  sc_in<sc_uint<REGISTER_BITS>> write_register_in; // Registrador destino (rt ou rd)
+  
+  // Sinais de controle
+  sc_in<bool> reg_write_in;     // Indica se a instrução escreve no banco de registradores
+  sc_in<bool> mem_to_reg_in;    // Seleciona entre memória ou ALU para o dado de escrita no registrador
+  sc_in<bool> mem_read_in;      // Habilita leitura da memória (para load)
+  sc_in<bool> mem_write_in;     // Habilita escrita na memória (para store)
+  sc_in<bool> branch_in;        // Indica se é uma instrução de branch
+  sc_in<bool> zero_flag_in;     // Flag zero da ALU (usada para branches)
 
-  // Entradas
-  sc_in<sc_uint<REGISTER_BITS>> reg_address_1_in;
-  sc_in<sc_uint<REGISTER_BITS>> reg_address_2_in;
-  sc_in<sc_uint<REGISTER_BITS>> reg_address_3_in;
-  sc_in<sc_int<DATA_BITS>> immediate_i_in;
-  sc_in<sc_int<DATA_BITS>> read_data_1_in;
-  sc_in<sc_int<DATA_BITS>> read_data_2_in;
-  sc_in<bool> reg_write_enable_in;
-  sc_in<bool> mem_read_enable_in;
-  sc_in<bool> mem_write_enable_in;
-  sc_in<bool> alu_src_in;
-  sc_in<bool> reg_dst_in;
-  sc_in<sc_uint<4>> alu_op_in;
+  // ----- Saídas para o estágio MEM -----
+  
+  // Dados processados
+  sc_out<sc_int<DATA_BITS>> alu_result_out;     // Resultado da ALU para estágio MEM
+  sc_out<sc_int<DATA_BITS>> write_data_out;     // Dado para escrita na memória
+  sc_out<sc_uint<REGISTER_BITS>> write_register_out; // Registrador destino
+  
+  // Sinais de controle
+  sc_out<bool> reg_write_out;   // Passa o sinal de escrita no registrador
+  sc_out<bool> mem_to_reg_out;  // Passa o sinal de seleção de fonte para WB
+  sc_out<bool> mem_read_out;    // Passa o sinal de leitura da memória
+  sc_out<bool> mem_write_out;   // Passa o sinal de escrita na memória
+  sc_out<bool> branch_out;      // Passa o sinal de branch
+  sc_out<bool> zero_flag_out;   // Passa a flag zero da ALU
+  sc_out<sc_int<DATA_BITS>> branch_target_out;  // Alvo calculado do branch (vindo da ALU)
 
-  // Saídas
-  sc_out<sc_uint<REGISTER_BITS>> reg_address_1_out;
-  sc_out<sc_uint<REGISTER_BITS>> reg_address_2_out;
-  sc_out<sc_uint<REGISTER_BITS>> reg_address_3_out;
-  sc_out<sc_int<DATA_BITS>> immediate_i_out;
-  sc_out<sc_int<DATA_BITS>> read_data_1_out;
-  sc_out<sc_int<DATA_BITS>> read_data_2_out;
-  sc_out<bool> reg_write_enable_out;
-  sc_out<bool> mem_read_enable_out;
-  sc_out<bool> mem_write_enable_out;
-  sc_out<bool> alu_src_out;
-  sc_out<bool> reg_dst_out;
-  sc_out<sc_uint<4>> alu_op_out;
+    
+  /**
+   * @brief Atualiza os registradores de pipeline
+   * 
+   * Este método é sensível à borda de subida do clock e ao reset.
+   */
+  void update() {
+    if (reset.read()) {
+      // Reset assíncrono - limpa todos os registradores
+      alu_result_out.write(0);
+      write_data_out.write(0);
+      write_register_out.write(0);
+      reg_write_out.write(false);
+      mem_to_reg_out.write(false);
+      mem_read_out.write(false);
+      mem_write_out.write(false);
+      branch_out.write(false);
+      zero_flag_out.write(false);
+      branch_target_out.write(0);
+    } 
+    else if (clock.posedge()) {
+      // Na borda de subida do clock, registra todos os sinais
+      
+      // Dados processados
+      alu_result_out.write(alu_result_in.read());
+      write_data_out.write(write_data_in.read());
+      write_register_out.write(write_register_in.read());
+      
+      // Sinais de controle
+      reg_write_out.write(reg_write_in.read());
+      mem_to_reg_out.write(mem_to_reg_in.read());
+      mem_read_out.write(mem_read_in.read());
+      mem_write_out.write(mem_write_in.read());
+      branch_out.write(branch_in.read());
+      zero_flag_out.write(zero_flag_in.read());
+      
+      // O alvo do branch é o resultado da ALU (calculado no estágio EX)
+      branch_target_out.write(alu_result_in.read());
+    }
+  }
 
-  // Registradores
-  Register<REGISTER_BITS, true> *reg_address_1, *reg_address_2, *reg_address_3;
-  Register<DATA_BITS, true> *immediate_i, *read_data_1, *read_data_2;
-  Register<1, true> *reg_write_enable, *mem_read_enable, *mem_write_enable;
-  Register<1, true> *alu_src, *reg_dst;
-  Register<4, true> *alu_op;
+    
 
-  SC_CTOR(ID_EX) {
-    // Instanciando registradores de endereços
-    reg_address_1 = new Register<REGISTER_BITS, true>("reg_address_1");
-    reg_address_1->clock(clock);
-    reg_address_1->reset(reset);
-    reg_address_1->write_enable(true); // Sempre ativa
-    reg_address_1->input(reg_address_1_in);
-    reg_address_1->output(reg_address_1_out);
-
-    reg_address_2 = new Register<REGISTER_BITS, true>("reg_address_2");
-    reg_address_2->clock(clock);
-    reg_address_2->reset(reset);
-    reg_address_2->write_enable(true);
-    reg_address_2->input(reg_address_2_in);
-    reg_address_2->output(reg_address_2_out);
-
-    reg_address_3 = new Register<REGISTER_BITS, true>("reg_address_3");
-    reg_address_3->clock(clock);
-    reg_address_3->reset(reset);
-    reg_address_3->write_enable(true);
-    reg_address_3->input(reg_address_3_in);
-    reg_address_3->output(reg_address_3_out);
-
-    // Imediatos e dados lidos
-    immediate_i = new Register<DATA_BITS, true>("immediate_i");
-    immediate_i->clock(clock);
-    immediate_i->reset(reset);
-    immediate_i->write_enable(true);
-    immediate_i->input(immediate_i_in);
-    immediate_i->output(immediate_i_out);
-
-    read_data_1 = new Register<DATA_BITS, true>("read_data_1");
-    read_data_1->clock(clock);
-    read_data_1->reset(reset);
-    read_data_1->write_enable(true);
-    read_data_1->input(read_data_1_in);
-    read_data_1->output(read_data_1_out);
-
-    read_data_2 = new Register<DATA_BITS, true>("read_data_2");
-    read_data_2->clock(clock);
-    read_data_2->reset(reset);
-    read_data_2->write_enable(true);
-    read_data_2->input(read_data_2_in);
-    read_data_2->output(read_data_2_out);
-
-    // Sinais de controle (1 bit)
-    reg_write_enable = new Register<1, true>("reg_write_enable");
-    reg_write_enable->clock(clock);
-    reg_write_enable->reset(reset);
-    reg_write_enable->write_enable(true);
-    reg_write_enable->input(reg_write_enable_in);
-    reg_write_enable->output(reg_write_enable_out);
-
-    mem_read_enable = new Register<1, true>("mem_read_enable");
-    mem_read_enable->clock(clock);
-    mem_read_enable->reset(reset);
-    mem_read_enable->write_enable(true);
-    mem_read_enable->input(mem_read_enable_in);
-    mem_read_enable->output(mem_read_enable_out);
-
-    mem_write_enable = new Register<1, true>("mem_write_enable");
-    mem_write_enable->clock(clock);
-    mem_write_enable->reset(reset);
-    mem_write_enable->write_enable(true);
-    mem_write_enable->input(mem_write_enable_in);
-    mem_write_enable->output(mem_write_enable_out);
-
-    alu_src = new Register<1, true>("alu_src");
-    alu_src->clock(clock);
-    alu_src->reset(reset);
-    alu_src->write_enable(true);
-    alu_src->input(alu_src_in);
-    alu_src->output(alu_src_out);
-
-    reg_dst = new Register<1, true>("reg_dst");
-    reg_dst->clock(clock);
-    reg_dst->reset(reset);
-    reg_dst->write_enable(true);
-    reg_dst->input(reg_dst_in);
-    reg_dst->output(reg_dst_out);
-
-    alu_op = new Register<4, true>("alu_op");
-    alu_op->clock(clock);
-    alu_op->reset(reset);
-    alu_op->write_enable(true);
-    alu_op->input(alu_op_in);
-    alu_op->output(alu_op_out);
+  SC_CTOR(EX_MEM) {
+    SC_METHOD(update);
+    sensitive << clock.pos() << reset;
+    
+    dont_initialize();
   }
 };
 
-#endif // !ID_EX_HPP
+#endif // EX_MEM_HPP
