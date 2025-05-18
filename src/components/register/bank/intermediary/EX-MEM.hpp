@@ -16,29 +16,19 @@ SC_MODULE(EX_MEM_Register) {
     sc_in<sc_int<DATA_BITS>> alu_result_in;
     sc_in<sc_int<DATA_BITS>> write_data_in;
     sc_in<sc_uint<REGISTER_BITS>> write_register_in;
-    sc_in<bool> zero_flag_in;
-    sc_in<bool> negative_flag_in;
     
     // Sinais de controle
     sc_in<bool> mem_read_in;
     sc_in<bool> mem_write_in;
     sc_in<bool> reg_write_in;
-    sc_in<bool> branch_taken_in;
-    sc_in<sc_int<DATA_BITS>> branch_target_in;
     
     // Saídas para fase MEM
     sc_out<sc_int<DATA_BITS>> alu_result_out;
     sc_out<sc_int<DATA_BITS>> write_data_out;
     sc_out<sc_uint<REGISTER_BITS>> write_register_out;
-    sc_out<bool> zero_flag_out;
-    sc_out<bool> negative_flag_out;
     
     // Sinais de controle
-    sc_out<bool> mem_read_out;
-    sc_out<bool> mem_write_out;
     sc_out<bool> reg_write_out;
-    sc_out<bool> branch_taken_out;
-    sc_out<sc_int<DATA_BITS>> branch_target_out;
 
     void update() {
         if (reset.read()) {

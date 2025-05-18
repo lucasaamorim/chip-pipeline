@@ -17,7 +17,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(systemc)
 
 # Diretórios de cabeçalhos
-include_directories(chip-pipeline src/components src/pipeline)
+include_directories(chip-pipeline src/components src/pipeline src/chip)
 
 # Arquivos de fontes
 file(GLOB SOURCES src/*/*.cpp)
