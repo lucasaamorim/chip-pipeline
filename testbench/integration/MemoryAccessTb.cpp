@@ -38,8 +38,6 @@ SC_MODULE(MEMTb) {
     sc_signal<sc_int<DATA_BITS>> alu_result_out;     // Resultado da ALU (passa para WB)
     sc_signal<sc_int<DATA_BITS>> read_data_out;      // Dados lidos da memória (para LD e WB)
     sc_signal<sc_uint<REGISTER_BITS>> write_register_out; // Endereço do registrador de destino (para WB)
-    sc_signal<bool> zero_flag_out;                   // Flag zero da ALU (passa para WB, se necessário)
-    sc_signal<bool> negative_flag_out;               // Flag negativo da ALU (passa para WB, se necessário)
 
     // Sinais de controle (passam para o próximo estágio)
     sc_signal<bool> mem_read_out;                    // Passa habilitação de leitura
@@ -73,11 +71,7 @@ SC_MODULE(MEMTb) {
         mem_stage->alu_result_out(alu_result_out);
         mem_stage->read_data_out(read_data_out);
         mem_stage->write_register_out(write_register_out);
-        mem_stage->zero_flag_out(zero_flag_out);
-        mem_stage->negative_flag_out(negative_flag_out);
 
-        mem_stage->mem_read_out(mem_read_out);
-        mem_stage->mem_write_out(mem_write_out);
         mem_stage->reg_write_out(reg_write_out);
         mem_stage->branch_taken_out(branch_taken_out);
         mem_stage->branch_target_out(branch_target_out);
@@ -104,12 +98,12 @@ SC_MODULE(MEMTb) {
         cout << "  alu_result_out    : " << alu_result_out.read() << endl;
         cout << "  read_data_out     : " << read_data_out.read() << endl;
         cout << "  write_register_out: " << write_register_out.read() << endl;
-        cout << "  zero_flag_out     : " << zero_flag_out.read() << endl;
-        cout << "  negative_flag_out : " << negative_flag_out.read() << endl;
+        //cout << "  zero_flag_out     : " << zero_flag_out.read() << endl;
+        //cout << "  negative_flag_out : " << negative_flag_out.read() << endl;
         cout << "  mem_read_out      : " << mem_read_out.read() << endl;
         cout << "  mem_write_out     : " << mem_write_out.read() << endl;
-        cout << "  reg_write_out     : " << reg_write_out.read() << endl;
-        cout << "  branch_taken_out  : " << branch_taken_out.read() << endl;
+        cout << "  reg_write_out     : " << (reg_write_out.read() ? "True" : "False") << endl;
+        cout << "  branch_taken_out  : " << (branch_taken_out.read() ? "True" : "False") << endl;
         cout << "  branch_target_out : " << branch_target_out.read() << endl;
         cout << "----------------------------------------" << endl;
     }
@@ -152,12 +146,17 @@ SC_MODULE(MEMTb) {
 
         // Verifica as saídas (devem ser as mesmas das entradas, exceto read_data_out)
         print_output_signals();
+        if (alu_result_out.read() == alu_result_in.read()) {
+            cout << "\033[1;32mTESTE 1 OK\033[0m" << endl;
+        } else {
+            cout << "\033[1;31mTESTE 1 ERRO\033[0m" << endl;
+        }
         // Adicionar asserções ou verificações mais detalhadas aqui
 
         // --- Teste 2: Instrução ST (Store) ---
         cout << "\n--- Teste 2: Instrução ST ---" << endl;
         alu_result_in.write(20);          // Endereço de memória (resultado da ALU)
-        write_data_in.write(0xDEADBEEF);  // Dados a serem escritos
+        write_data_in.write(0xabcd00);  // Dados a serem escritos
         write_register_in.write(0);       // Não relevante para ST, mas passa adiante
         reg_write_in.write(false);        // ST não escreve no registrador
         zero_flag_in.write(false);
@@ -167,40 +166,24 @@ SC_MODULE(MEMTb) {
         branch_taken_in.write(false);
         branch_target_in.write(0);
 
+        
         wait_clock_cycles(1); // Executa o estágio MEM (escrita na memória)
-
+        wait(SC_ZERO_TIME); // dá um pouco mais de tempo para a memória responder
         print_output_signals();
-        // Para verificar a escrita, precisaríamos ler a memória diretamente no testbench,
-        // o que não é trivial sem modificar o módulo Memory ou adicionar uma porta de debug.
-        // Por enquanto, verificamos que os sinais de controle são passados corretamente.
-
+        if (mem_stage->data_memory->memory[20] == 0xabcd00) {
+            cout << "\033[1;32mTESTE 2 OK\033[0m" << endl;
+        } else {
+            cout << "\033[1;31mTESTE 2 ERRO\033[0m" << endl;
+        }
+        
         // --- Teste 3: Instrução LD (Load) ---
         cout << "\n--- Teste 3: Instrução LD ---" << endl;
-        // Antes de ler, vamos inicializar a memória na posição 30 com um valor conhecido
-        // Isso precisa ser feito acessando a instância da memória dentro do módulo MEM.
-        // Uma forma é adicionar um método público no módulo MEM para inicializar a memória,
-        // ou inicializar a memória diretamente no testbench se a instância for acessível.
-        // Assumindo que podemos acessar a instância da memória (pode ser necessário ajustar o módulo MEM):
-        // mem_stage->data_memory->initialize({ {30, 0xCAFEBABE} }); // Exemplo, pode não funcionar diretamente
-
-        // Uma forma mais limpa é adicionar um método initialize_data_memory no módulo MEM
-        // e chamá-lo aqui. Por agora, vamos simular a leitura e verificar a saída.
-        // Precisamos que a memória interna do módulo MEM tenha um valor na posição 30.
-        // Vamos adicionar um método público no módulo MEM para inicializar a memória de dados.
-
-        // --- Adicionando método initialize_data_memory ao MEM.hpp ---
-        // (Você precisará adicionar este método ao seu arquivo MEM.hpp)
-        /*
-           void initialize_data_memory(std::vector<sc_int<DATA_BITS>> data) {
-               data_memory->initialize(data);
-           }
-        */
         // -----------------------------------------------------------
 
         // Inicializa a memória de dados para o teste de leitura
         vector<sc_int<DATA_BITS>> initial_data(1 << ADDRESS_BITS, 0); // Cria um vetor zerado do tamanho da memória
-        initial_data[30] = 0xCAFEBABE; // Coloca um valor conhecido na posição 30
-        // mem_stage->initialize_data_memory(initial_data); // Chame o novo método
+        initial_data[30] = 0xf23611b; // Coloca um valor conhecido na posição 30
+        mem_stage->initialize_data_memory(initial_data); // Chame o novo método
 
         // Simula a leitura
         alu_result_in.write(30);          // Endereço de memória a ser lido
@@ -215,11 +198,16 @@ SC_MODULE(MEMTb) {
         branch_target_in.write(0);
 
         wait_clock_cycles(1); // Executa o estágio MEM (leitura da memória)
-
+        wait(SC_ZERO_TIME); // dá um pouco mais de tempo para a memória responder
+        
         print_output_signals();
+        if (read_data_out.read() == 0xf23611b) {
+            cout << "\033[1;32mTESTE 3 OK\033[0m" << endl;
+        } else {
+            cout << "\033[1;31mTESTE 3 ERRO\033[0m" << endl;
+        }
         // Verifica se o valor lido é o esperado
-        cout << "  Valor lido esperado: 0x" << hex << 0xCAFEBABE << dec << endl;
-        // Adicionar asserção: SC_ASSERT(read_data_out.read() == 0xCAFEBABE);
+        cout << "  Valor lido esperado: " << 0xf23611b << dec << endl;
 
         // --- Teste 4: Branch tomado (passa sinais de branch) ---
         cout << "\n--- Teste 4: Branch tomado ---" << endl;
@@ -233,21 +221,41 @@ SC_MODULE(MEMTb) {
         mem_write_in.write(false);
         branch_taken_in.write(true);      // Sinal de branch tomado
         branch_target_in.write(0x50);     // Endereço de destino do branch
-
+    
         wait_clock_cycles(1); // Executa o estágio MEM
 
         print_output_signals();
         // Verifica se os sinais de branch foram passados
-        // Adicionar asserções: SC_ASSERT(branch_taken_out.read() == true);
-        // SC_ASSERT(branch_target_out.read() == 0x50);
+        if (branch_taken_out.read() == true && branch_target_out.read() == 0x50) {
+            cout << "\033[1;32mTESTE 4 OK\033[0m" << endl;
+        } else {
+            cout << "\033[1;31mTESTE 4 ERRO\033[0m" << endl;
+        }
 
         // --- Reset final ---
         cout << "\n--- Reset Final ---" << endl;
         reset.write(true);
+        alu_result_in.write(0);
+        write_data_in.write(0);
+        write_register_in.write(0);
+        reg_write_in.write(false);
+        zero_flag_in.write(false);
+        negative_flag_in.write(false);
+        mem_read_in.write(false);
+        mem_write_in.write(false);
+        branch_taken_in.write(false);
+        branch_target_in.write(0);
+        mem_stage->reset_memory();
         wait_clock_cycles(2);
         reset.write(false);
         wait_clock_cycles(1);
+        wait(SC_ZERO_TIME);
         print_output_signals(); // Saídas devem estar zeradas após reset
+        if (alu_result_out.read() == 0 && write_register_out.read() == 0 && reg_write_out == false && branch_taken_out.read() == false && branch_target_out.read() == 0) {
+            cout << "\033[1;32mRESET FINAL OK\033[0m" << endl;
+        } else {
+            cout << "\033[1;31mRESET FINAL ERRO\033[0m" << endl;
+        }
 
         cout << "\nTestbench para o estágio MEM concluído." << endl;
         sc_stop(); // Finaliza a simulação

@@ -7,6 +7,7 @@
 using namespace sc_core;
 using namespace sc_dt;
 
+
 template <unsigned int DATA_BITS = 32, unsigned int ADDRESS_BITS = 8,
           unsigned int REGISTER_BITS = 4>
 SC_MODULE(MEM) {
@@ -16,7 +17,7 @@ SC_MODULE(MEM) {
 
     // Entradas
     sc_in<sc_int<DATA_BITS>> alu_result_in;       // Resultado da ALU (endereço de memória)
-    sc_in<sc_int<DATA_BITS>> write_data_in;             // Dados a serem escritos na memória (para ST)
+    sc_in<sc_int<DATA_BITS>> write_data_in;       // Dados a serem escritos na memória (para ST)
     sc_in<sc_uint<REGISTER_BITS>> write_register_in; // Endereço do registrador de destino (para WB)
     sc_in<bool> zero_flag_in;                     // Flag zero da ALU
     sc_in<bool> negative_flag_in;                 // Flag negativo da ALU
@@ -32,38 +33,42 @@ SC_MODULE(MEM) {
     sc_out<sc_int<DATA_BITS>> alu_result_out;     // Resultado da ALU (passa para WB)
     sc_out<sc_int<DATA_BITS>> read_data_out;      // Dados lidos da memória (para LD e WB)
     sc_out<sc_uint<REGISTER_BITS>> write_register_out; // Endereço do registrador de destino (para WB)
-    sc_out<bool> zero_flag_out;                   // Flag zero da ALU (passa para WB, se necessário)
-    sc_out<bool> negative_flag_out;               // Flag negativo da ALU (passa para WB, se necessário)
 
     // Sinais de controle
-    sc_out<bool> mem_read_out;                    // Passa habilitação de leitura (pode ser usado em WB)
-    sc_out<bool> mem_write_out;                   // não usado em WB, mas pode ser útil para debug
     sc_out<bool> reg_write_out;                   // Habilita escrita no banco de registradores (para WB)
     sc_out<bool> branch_taken_out;                // Passa sinal de branch tomado
     sc_out<sc_int<DATA_BITS>> branch_target_out;  // Passa endereço de destino do branch/jump
-    // TODO: Adicionar sc_out<bool> mem_to_reg_out; quando este sinal for adicionado ao ControlUnit e ID-EX/EX-MEM
 
     // Componente de memória de dados
     Memory<DATA_BITS, ADDRESS_BITS, sc_int<DATA_BITS>> *data_memory;
 
+    // Sinal intermediário para o endereço da memória
+    sc_signal<sc_uint<ADDRESS_BITS>> memory_address_sig;
+
     // Sinal intermediário para a saída da memória
     sc_signal<sc_int<DATA_BITS>> data_memory_output;
 
+    void reset_memory() {
+        data_memory->reset_memory();
+    }
+
     void process_mem_stage() {
+        memory_address_sig.write( (sc_uint<ADDRESS_BITS>) alu_result_in.read() );
+
         // Passa os sinais de controle e outros dados diretamente para o próximo estágio
         // A lógica de escrita/leitura na memória é tratada pelo módulo Memory
         alu_result_out.write(alu_result_in.read());
         write_register_out.write(write_register_in.read());
-        zero_flag_out.write(zero_flag_in.read());
-        negative_flag_out.write(negative_flag_in.read());
-        mem_read_out.write(mem_read_in.read());
-        mem_write_out.write(mem_write_in.read());
         reg_write_out.write(reg_write_in.read());
         branch_taken_out.write(branch_taken_in.read());
         branch_target_out.write(branch_target_in.read());
 
         // A saída da memória (data_memory_output) já está conectada à saída read_data_out
         // dentro do SC_CTOR, então não precisa escrever aqui.
+    }
+
+    void initialize_data_memory(std::vector<sc_int<DATA_BITS>> data) {
+        data_memory->initialize(data);
     }
 
     SC_CTOR(MEM) {
@@ -76,12 +81,12 @@ SC_MODULE(MEM) {
         data_memory->write_enable(mem_write_in);
         data_memory->read_enable(mem_read_in);
         // É necessário converter o resultado da ALU para sc_uint para usar como endereço
-        data_memory->address( (sc_uint<ADDRESS_BITS>) alu_result_in.read() );
+        data_memory->address(memory_address_sig);
         data_memory->input(write_data_in);
-        data_memory->output(data_memory_output); // Conecta a saída da memória a um sinal intermediário
+        data_memory->output(read_data_out); // Conecta a saída da memória a um sinal intermediário
 
         // Conecta o sinal intermediário da memória à saída do estágio MEM
-        read_data_out(data_memory_output);
+        //read_data_out(data_memory_output);
 
         // Método para passar os outros sinais
         SC_METHOD(process_mem_stage);
