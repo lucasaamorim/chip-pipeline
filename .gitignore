@@ -33,3 +33,8 @@
 
 # Build
 build
+
+docs
+.*
+code2prompt.sh
+codebase.md

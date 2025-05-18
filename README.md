@@ -3,6 +3,7 @@ Implementação em SystemC de um modelo de organização (modelo PC/PO) para uma
 
 ## Instruções Suportadas
 O modelo é capaz de realizar as seguintes instruções em pipeline:
+
 **Tipo R**
 - AND: Operação booleana and
 - OR: Operação booleana or
@@ -10,10 +11,12 @@ O modelo é capaz de realizar as seguintes instruções em pipeline:
 - CMP: Comparação
 - ADD: Soma
 - SUB: Subtração
+
 **Tipo I**
 - NOT: Operação booleana not
 - LD: Leitura em Memória
 - ST: Armazenamento em Memória
+
 **Tipo J**
 - J: Salto incondicional
 - JN: Salto condicional (caso negativo)
