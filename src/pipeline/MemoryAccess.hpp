@@ -80,13 +80,10 @@ SC_MODULE(MEM) {
         data_memory->reset(reset);
         data_memory->write_enable(mem_write_in);
         data_memory->read_enable(mem_read_in);
-        // É necessário converter o resultado da ALU para sc_uint para usar como endereço
         data_memory->address(memory_address_sig);
         data_memory->input(write_data_in);
         data_memory->output(read_data_out); // Conecta a saída da memória a um sinal intermediário
 
-        // Conecta o sinal intermediário da memória à saída do estágio MEM
-        //read_data_out(data_memory_output);
 
         // Método para passar os outros sinais
         SC_METHOD(process_mem_stage);
