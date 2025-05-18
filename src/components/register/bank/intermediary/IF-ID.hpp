@@ -19,12 +19,12 @@ SC_MODULE(IF_ID) {
   sc_out<sc_uint<DATA_BITS>> instruction_out;
   sc_out<sc_uint<PC_BITS>> next_pc_out;
 
-  Register<DATA_BITS, true> *instruction;
-  Register<PC_BITS, true> *next_pc;
+  Register<DATA_BITS, true, sc_uint<DATA_BITS>> *instruction;
+  Register<PC_BITS, true, sc_uint<PC_BITS>> *next_pc;
 
   SC_CTOR(IF_ID) {
     /// Inicializando o registrador de instruções
-    instruction = new Register<DATA_BITS, true>("instruction");
+    instruction = new Register<DATA_BITS, true, sc_uint<DATA_BITS>>("instruction");
     instruction->clock(clock);
     instruction->reset(reset);
     instruction->write_enable(write_enable);
@@ -32,7 +32,7 @@ SC_MODULE(IF_ID) {
     instruction->output(instruction_out);
 
     /// Inicializando o registrador de PC
-    next_pc = new Register<PC_BITS, true>("next_pc");
+    next_pc = new Register<PC_BITS, true, sc_uint<PC_BITS>>("next_pc");
     next_pc->clock(clock);
     next_pc->reset(reset);
     next_pc->write_enable(write_enable);
