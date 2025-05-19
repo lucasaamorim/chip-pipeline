@@ -1,6 +1,7 @@
 #ifndef PC_HPP
 #define PC_HPP
 
+#include <iostream>
 #include <systemc>
 
 using namespace sc_core;
