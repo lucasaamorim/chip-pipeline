@@ -1,5 +1,5 @@
 $date
-     May 19, 2025       18:49:06
+     May 19, 2025       20:05:19
 $end
 
 $version
@@ -13,15 +13,41 @@ $end
 $scope module SystemC $end
 $var wire    1  aaaaa  clk       $end
 $var wire    1  aaaab  reset       $end
-$var wire   32  aaaac  PC [31:0]  $end
-$var wire   32  aaaad  INSTRUCTION [31:0]  $end
-$var wire   32  aaaae  mem_address [31:0]  $end
-$var wire   32  aaaaf  mem_write_data [31:0]  $end
-$var wire    1  aaaag  mem_write_signal       $end
-$var wire    1  aaaah  mem_read_signal       $end
-$var wire   32  aaaai  mem_data_out [31:0]  $end
-$var wire   32  aaaaj  mem_store_data [31:0]  $end
-$var wire   32  aaaak  mem_address [31:0]  $end
+$var wire   32  aaaac  IF/PC [31:0]  $end
+$var wire   32  aaaad  ID/IF_ID_PC [31:0]  $end
+$var wire   32  aaaae  ID/IF_ID_Instruction [31:0]  $end
+$var wire    4  aaaaf  ID/RS [3:0]  $end
+$var wire    4  aaaag  ID/RT [3:0]  $end
+$var wire    4  aaaah  ID/RD [3:0]  $end
+$var wire   32  aaaai  ID/ImmI [31:0]  $end
+$var wire   32  aaaaj  ID/RegData1 [31:0]  $end
+$var wire   32  aaaak  ID/RegData2 [31:0]  $end
+$var wire    1  aaaal  ID/ALUSrc       $end
+$var wire    3  aaaam  ID/ALUOp [2:0]  $end
+$var wire    1  aaaan  ID/RegWrite       $end
+$var wire    1  aaaao  ID/MemToReg       $end
+$var wire    1  aaaap  ID/MemRead       $end
+$var wire    1  aaaaq  ID/MemWrite       $end
+$var wire   32  aaaar  EX/Operand1 [31:0]  $end
+$var wire   32  aaaas  EX/Operand2 [31:0]  $end
+$var wire   32  aaaat  EX/MuxRSVal [31:0]  $end
+$var wire   32  aaaau  EX/MuxRTVal [31:0]  $end
+$var wire   32  aaaav  EX/ULA_Result [31:0]  $end
+$var wire    4  aaaaw  EX/RD_Mux_Out [3:0]  $end
+$var wire    2  aaaax  EX/Forward_RS_Sel [1:0]  $end
+$var wire    2  aaaay  EX/Forward_RT_Sel [1:0]  $end
+$var wire    3  aaaaz  EX/ALUOp [2:0]  $end
+$var wire   32  aaaba  MEM/Addr [31:0]  $end
+$var wire   32  aaabb  MEM/DataToWrite [31:0]  $end
+$var wire    1  aaabc  MEM/MemRead       $end
+$var wire    1  aaabd  MEM/MemWrite       $end
+$var wire   32  aaabe  MEM/MemDataRead [31:0]  $end
+$var wire   32  aaabf  WB/DataMemOut [31:0]  $end
+$var wire   32  aaabg  WB/ULA_Result [31:0]  $end
+$var wire   32  aaabh  WB/WriteBackData [31:0]  $end
+$var wire    4  aaabi  WB/RD [3:0]  $end
+$var wire    1  aaabj  WB/RegWrite       $end
+$var wire    1  aaabk  WB/MemToReg       $end
 $upscope $end
 $enddefinitions  $end
 
@@ -36,11 +62,37 @@ b0 aaaac
 b0 aaaad
 b0 aaaae
 b0 aaaaf
-0aaaag
-0aaaah
+b0 aaaag
+b0 aaaah
 b0 aaaai
 b0 aaaaj
 b0 aaaak
+0aaaal
+b0 aaaam
+1aaaan
+0aaaao
+0aaaap
+0aaaaq
+b0 aaaar
+b0 aaaas
+b0 aaaat
+b0 aaaau
+b0 aaaav
+b0 aaaaw
+b0 aaaax
+b0 aaaay
+b0 aaaaz
+b0 aaaba
+b0 aaabb
+0aaabc
+0aaabd
+b0 aaabe
+b0 aaabf
+b0 aaabg
+b0 aaabh
+b0 aaabi
+0aaabj
+0aaabk
 $end
 
 #5000
@@ -55,7 +107,13 @@ $end
 #20000
 1aaaaa
 b100 aaaac
-b10011100000010000000000001100100 aaaad
+b10011100000010000000000001100100 aaaae
+b10 aaaag
+b1100100 aaaai
+1aaaal
+b100 aaaam
+b1 aaaax
+b1 aaaay
 
 #25000
 0aaaaa
@@ -63,7 +121,17 @@ b10011100000010000000000001100100 aaaad
 #30000
 1aaaaa
 b1000 aaaac
-b10011100000011000000000000001010 aaaad
+b100 aaaad
+b10011100000011000000000000001010 aaaae
+b11 aaaag
+b1010 aaaai
+b1100100 aaaau
+b1100100 aaaav
+b10 aaaaw
+b10 aaaax
+b11 aaaay
+b100 aaaaz
+1aaabj
 
 #35000
 0aaaaa
@@ -71,9 +139,16 @@ b10011100000011000000000000001010 aaaad
 #40000
 1aaaaa
 b1100 aaaac
-b10100100100011000000000000000000 aaaad
-b1100100 aaaae
-b1100100 aaaak
+b1000 aaaad
+b10100100100011000000000000000000 aaaae
+b10 aaaaf
+b0 aaaai
+0aaaan
+1aaaaq
+b1010 aaaau
+b1010 aaaav
+b11 aaaaw
+b1100100 aaaba
 
 #45000
 0aaaaa
@@ -81,9 +156,21 @@ b1100100 aaaak
 #50000
 1aaaaa
 b10000 aaaac
-b10011000100100000000000000000000 aaaad
-b1010 aaaae
-b1010 aaaak
+b1100 aaaad
+b10011000100100000000000000000000 aaaae
+b100 aaaag
+b1100100 aaaaj
+1aaaan
+1aaaao
+1aaaap
+0aaaaq
+b1100100 aaaat
+b0 aaaau
+b1100100 aaaav
+b1010 aaaba
+b1100100 aaabg
+b1100100 aaabh
+b10 aaabi
 
 #55000
 0aaaaa
@@ -91,10 +178,22 @@ b1010 aaaak
 #60000
 1aaaaa
 b10100 aaaac
-b10011101000101000000000000000101 aaaad
-b1100100 aaaae
-1aaaag
-b1100100 aaaak
+b10000 aaaad
+b10011101000101000000000000000101 aaaae
+b100 aaaaf
+b101 aaaag
+b101 aaaai
+b0 aaaaj
+0aaaao
+0aaaap
+b1100100 aaaar
+b100 aaaaw
+b0 aaaax
+b1100100 aaaba
+1aaabd
+b1010 aaabg
+b1010 aaabh
+b11 aaabi
 
 #65000
 0aaaaa
@@ -102,11 +201,23 @@ b1100100 aaaak
 #70000
 1aaaaa
 b11000 aaaac
-b0 aaaad
-b1100100 aaaaf
-0aaaag
-1aaaah
-b1100100 aaaaj
+b10100 aaaad
+b0 aaaae
+b0 aaaaf
+b0 aaaag
+b0 aaaai
+0aaaal
+b0 aaaar
+b101 aaaau
+b1101001 aaaav
+b101 aaaaw
+b1 aaaax
+b1100100 aaabb
+1aaabc
+0aaabd
+b1100100 aaabg
+b1100100 aaabh
+0aaabj
 
 #75000
 0aaaaa
@@ -114,11 +225,20 @@ b1100100 aaaaj
 #80000
 1aaaaa
 b11100 aaaac
-b1101001 aaaae
-b0 aaaaf
-0aaaah
-b0 aaaaj
-b1101001 aaaak
+b11000 aaaad
+b0 aaaat
+b0 aaaau
+b0 aaaav
+b0 aaaaw
+b0 aaaax
+b0 aaaay
+b1101001 aaaba
+b0 aaabb
+0aaabc
+b0 aaabh
+b100 aaabi
+1aaabj
+1aaabk
 
 #85000
 0aaaaa
@@ -126,8 +246,14 @@ b1101001 aaaak
 #90000
 1aaaaa
 b100000 aaaac
-b0 aaaae
-b0 aaaak
+b11100 aaaad
+b1 aaaax
+b1 aaaay
+b0 aaaba
+b1101001 aaabg
+b1101001 aaabh
+b101 aaabi
+0aaabk
 
 #95000
 0aaaaa
@@ -135,6 +261,12 @@ b0 aaaak
 #100000
 1aaaaa
 b100100 aaaac
+b100000 aaaad
+b10 aaaax
+b10 aaaay
+b0 aaabg
+b0 aaabh
+b0 aaabi
 
 #105000
 0aaaaa
@@ -142,6 +274,7 @@ b100100 aaaac
 #110000
 1aaaaa
 b101000 aaaac
+b100100 aaaad
 
 #115000
 0aaaaa
@@ -149,6 +282,7 @@ b101000 aaaac
 #120000
 1aaaaa
 b101100 aaaac
+b101000 aaaad
 
 #125000
 0aaaaa
@@ -156,6 +290,7 @@ b101100 aaaac
 #130000
 1aaaaa
 b110000 aaaac
+b101100 aaaad
 
 #135000
 0aaaaa
@@ -163,6 +298,7 @@ b110000 aaaac
 #140000
 1aaaaa
 b110100 aaaac
+b110000 aaaad
 
 #145000
 0aaaaa
@@ -170,6 +306,7 @@ b110100 aaaac
 #150000
 1aaaaa
 b111000 aaaac
+b110100 aaaad
 
 #155000
 0aaaaa
@@ -177,6 +314,7 @@ b111000 aaaac
 #160000
 1aaaaa
 b111100 aaaac
+b111000 aaaad
 
 #165000
 0aaaaa
@@ -184,6 +322,7 @@ b111100 aaaac
 #170000
 1aaaaa
 b1000000 aaaac
+b111100 aaaad
 
 #175000
 0aaaaa
@@ -191,6 +330,7 @@ b1000000 aaaac
 #180000
 1aaaaa
 b1000100 aaaac
+b1000000 aaaad
 
 #185000
 0aaaaa
@@ -198,6 +338,7 @@ b1000100 aaaac
 #190000
 1aaaaa
 b1001000 aaaac
+b1000100 aaaad
 
 #195000
 0aaaaa
