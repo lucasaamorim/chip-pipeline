@@ -25,6 +25,17 @@ SC_MODULE(Mux) {
       if (reset.read()) {
          out.write(0);
       } else {
+         /*          if (name() == std::string("tb.chip.mux_ex_rt_val")) {
+
+                     std::cout << sc_time_stamp() << " [" << name()
+                               << "] processando...\n";
+                     std::cout << "sel: " << sel.read() << std::endl;
+                     for (unsigned int i = 0; i < INPUTS_COUNT; ++i) {
+                        std::cout << "in[" << i << "]: " << in[i].read() <<
+            std::endl;
+                     }
+                  } */
+
          unsigned idx = sel.read().to_uint();
          // guard against out-of-range select
          if (idx < INPUTS_COUNT) {
@@ -45,8 +56,9 @@ SC_MODULE(Mux) {
       SC_METHOD(process);
       dont_initialize();
       sensitive << sel << clk.pos();
+
       for (unsigned int i = 0; i < INPUTS_COUNT; ++i) {
-         sensitive << in[i];
+         this->sensitive << in[i];
       }
    }
 };

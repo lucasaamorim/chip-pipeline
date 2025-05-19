@@ -283,7 +283,7 @@ SC_MODULE(Chip) {
       mux_ex_rs_val->in[0](id_ex_data_out_1_signal);
       mux_ex_rs_val->in[1](ex_mem_ula_result_out_signal);
       mux_ex_rs_val->in[2](mem_wb_ula_result_out_signal);
-      mux_ex_rs_val->in[3](id_ex_immediate_out);
+      mux_ex_rs_val->in[3](mux_source);
       mux_ex_rs_val->sel(rs_sel_signal);
       mux_ex_rs_val->out(mux_ex_rs_val_out_signal);
 
@@ -294,7 +294,7 @@ SC_MODULE(Chip) {
       mux_ex_rt_val->in[0](id_ex_data_out_2_signal);
       mux_ex_rt_val->in[1](ex_mem_ula_result_out_signal);
       mux_ex_rt_val->in[2](mem_wb_ula_result_out_signal);
-      mux_ex_rt_val->in[3](mux_source);
+      mux_ex_rt_val->in[3](id_ex_immediate_out);
       mux_ex_rt_val->sel(rt_sel_signal);
       mux_ex_rt_val->out(mux_ex_rt_val_out_signal);
 
@@ -376,7 +376,7 @@ SC_MODULE(Chip) {
 
    void initialize_instructions(std::vector<sc_uint<32>> instructions) {
       for (int i = 0; i < instructions.size(); i++) {
-         instruction_memory->write(i * 4, instructions[i]);
+         instruction_memory->write(i, instructions[i]);
       }
    }
 };

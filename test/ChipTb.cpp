@@ -53,11 +53,11 @@ SC_MODULE(Testbench) {
       std::vector<sc_uint<32>> prog = {
          makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
          makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
-         makeR(0b000011, 2, 1, 3), // AND  R3 = R2 & R1
+         makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
          makeJ(0b111111, 2), // J skip next 2
          makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
-         makeI(0b100001, 0, 5, 3), // XORI R5 (skipped)
-         makeI(0b101000, 3, 6, 5), // SUBI R6 = R3 - 5
+         makeI(0b100001, 1, 4, 3), // XORI R5 (skipped)
+         makeI(0b101000, 3, 4, 5), // SUBI R6 = R3 - 5
          0 // NOP
       };
       chip->initialize_instructions(prog);
@@ -67,6 +67,7 @@ SC_MODULE(Testbench) {
       sc_trace(tf, clk, "clk");
       sc_trace(tf, reset, "reset");
       sc_trace(tf, chip->pc_out_signal, "PC");
+      sc_trace(tf, chip->if_id_instruction_signal, "INSTRUCTION");
 
       // Prev register snapshot using C array
       uint32_t prev[16] = { 0 };

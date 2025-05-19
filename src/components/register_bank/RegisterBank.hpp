@@ -1,6 +1,7 @@
 #ifndef REGISTER_BANK_HPP
 #define REGISTER_BANK_HPP
 
+#include <iostream>
 #include <systemc>
 
 using namespace sc_core;
@@ -21,6 +22,9 @@ SC_MODULE(RegisterBank) {
             registers[i] = 0;
          }
       } else if (write_enable.read() && write_address.read() != 0) {
+         /* std::cout << sc_time_stamp() << " RegisterBank: " << std::endl;
+         std::cout << "write_address: " << write_address.read() << std::endl;
+         std::cout << "data_in: " << data_in.read() << std::endl; */
          registers[write_address.read()] = data_in.read();
       }
 

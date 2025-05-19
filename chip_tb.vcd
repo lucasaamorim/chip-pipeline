@@ -1,5 +1,5 @@
 $date
-     May 19, 2025       13:28:31
+     May 19, 2025       14:13:05
 $end
 
 $version
@@ -14,6 +14,7 @@ $scope module SystemC $end
 $var wire    1  aaaaa  clk       $end
 $var wire    1  aaaab  reset       $end
 $var wire   32  aaaac  PC [31:0]  $end
+$var wire   32  aaaad  INSTRUCTION [31:0]  $end
 $upscope $end
 $enddefinitions  $end
 
@@ -25,6 +26,7 @@ $dumpvars
 1aaaaa
 0aaaab
 b0 aaaac
+b0 aaaad
 $end
 
 #5000
@@ -39,6 +41,7 @@ $end
 #20000
 1aaaaa
 b100 aaaac
+b10011100000001000000000000001010 aaaad
 
 #25000
 0aaaaa
@@ -46,6 +49,7 @@ b100 aaaac
 #30000
 1aaaaa
 b1000 aaaac
+b10011100010010000000000000010100 aaaad
 
 #35000
 0aaaaa
@@ -53,6 +57,7 @@ b1000 aaaac
 #40000
 1aaaaa
 b1100 aaaac
+b1100010010001100000000000000 aaaad
 
 #45000
 0aaaaa
@@ -60,69 +65,73 @@ b1100 aaaac
 #50000
 1aaaaa
 b10000 aaaac
+b11111100000000000000000000000010 aaaad
 
 #55000
 0aaaaa
 
 #60000
 1aaaaa
-b10100 aaaac
+b11000 aaaac
+b10001000000100000000000000001111 aaaad
 
 #65000
 0aaaaa
 
 #70000
 1aaaaa
-b11000 aaaac
+b11100 aaaac
+b10100000110100000000000000000101 aaaad
 
 #75000
 0aaaaa
 
 #80000
 1aaaaa
-b11100 aaaac
+b100000 aaaac
+b0 aaaad
 
 #85000
 0aaaaa
 
 #90000
 1aaaaa
-b100000 aaaac
+b100100 aaaac
 
 #95000
 0aaaaa
 
 #100000
 1aaaaa
-b100100 aaaac
+b101000 aaaac
 
 #105000
 0aaaaa
 
 #110000
 1aaaaa
-b101000 aaaac
+b101100 aaaac
 
 #115000
 0aaaaa
 
 #120000
 1aaaaa
-b101100 aaaac
+b110000 aaaac
 
 #125000
 0aaaaa
 
 #130000
 1aaaaa
-b110000 aaaac
+b110100 aaaac
 
 #135000
 0aaaaa
 
 #140000
 1aaaaa
-b110100 aaaac
+b111000 aaaac
 
 #145000
 0aaaaa

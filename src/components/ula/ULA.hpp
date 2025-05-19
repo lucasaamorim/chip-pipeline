@@ -1,6 +1,7 @@
 #ifndef ULA_HPP
 #define ULA_HPP
 
+#include <iostream>
 #include <systemc>
 
 using namespace sc_core;
@@ -18,6 +19,9 @@ SC_MODULE(ULA) {
       if (reset.read()) {
          out.write(0);
       } else {
+         /*          std::cout << sc_time_stamp() << " ULA: " << std::endl;
+                  std::cout << "in1: " << in1.read() << " in2: " << in2.read()
+                            << " func: " << func.read() << std::endl; */
          switch (func.read()) {
             case 0:
                out.write(in1.read() & in2.read());
