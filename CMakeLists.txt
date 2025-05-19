@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.11.2)
 project(chip-pipeline VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -17,11 +17,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(systemc)
 
 # Diretórios de cabeçalhos
-include_directories(chip-pipeline src/components src/pipeline)
+include_directories(chip-pipeline src/pipeline src/components)
 
 # Arquivos de fontes
 file(GLOB SOURCES src/*/*.cpp)
-file(GLOB_RECURSE TESTBENCH_SOURCES testbench/*.cpp)
+file(GLOB_RECURSE TESTBENCH_SOURCES test/*.cpp)
 
 # Gerando o executável principal
 add_executable(chip-pipeline src/main.cpp ${SOURCES})
@@ -35,7 +35,7 @@ foreach(TESTBENCH_FILE ${TESTBENCH_SOURCES})
   get_filename_component(TESTBENCH_NAME ${TESTBENCH_FILE} NAME_WE)
 
   # Adicionando o diretório dos cabeçalhos
-  include_directories(${TESTBENCH_NAME} src/components src/pipeline)
+  include_directories(${TESTBENCH_NAME} src/pipeline)
 
   # Definindo o alvo para cada testbench
   add_executable(${TESTBENCH_NAME} ${TESTBENCH_FILE} ${SOURCES})
