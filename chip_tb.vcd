@@ -1,9 +1,9 @@
 $date
-     May 19, 2025       14:13:05
+     May 19, 2025       18:49:06
 $end
 
 $version
- SystemC 3.0.1-Accellera --- May  7 2025 12:21:27
+ SystemC 3.0.1-Accellera --- May 10 2025 18:12:02
 $end
 
 $timescale
@@ -15,6 +15,13 @@ $var wire    1  aaaaa  clk       $end
 $var wire    1  aaaab  reset       $end
 $var wire   32  aaaac  PC [31:0]  $end
 $var wire   32  aaaad  INSTRUCTION [31:0]  $end
+$var wire   32  aaaae  mem_address [31:0]  $end
+$var wire   32  aaaaf  mem_write_data [31:0]  $end
+$var wire    1  aaaag  mem_write_signal       $end
+$var wire    1  aaaah  mem_read_signal       $end
+$var wire   32  aaaai  mem_data_out [31:0]  $end
+$var wire   32  aaaaj  mem_store_data [31:0]  $end
+$var wire   32  aaaak  mem_address [31:0]  $end
 $upscope $end
 $enddefinitions  $end
 
@@ -27,6 +34,13 @@ $dumpvars
 0aaaab
 b0 aaaac
 b0 aaaad
+b0 aaaae
+b0 aaaaf
+0aaaag
+0aaaah
+b0 aaaai
+b0 aaaaj
+b0 aaaak
 $end
 
 #5000
@@ -41,7 +55,7 @@ $end
 #20000
 1aaaaa
 b100 aaaac
-b10011100000001000000000000001010 aaaad
+b10011100000010000000000001100100 aaaad
 
 #25000
 0aaaaa
@@ -49,7 +63,7 @@ b10011100000001000000000000001010 aaaad
 #30000
 1aaaaa
 b1000 aaaac
-b10011100010010000000000000010100 aaaad
+b10011100000011000000000000001010 aaaad
 
 #35000
 0aaaaa
@@ -57,7 +71,9 @@ b10011100010010000000000000010100 aaaad
 #40000
 1aaaaa
 b1100 aaaac
-b1100010010001100000000000000 aaaad
+b10100100100011000000000000000000 aaaad
+b1100100 aaaae
+b1100100 aaaak
 
 #45000
 0aaaaa
@@ -65,108 +81,123 @@ b1100010010001100000000000000 aaaad
 #50000
 1aaaaa
 b10000 aaaac
-b11111100000000000000000000000010 aaaad
+b10011000100100000000000000000000 aaaad
+b1010 aaaae
+b1010 aaaak
 
 #55000
 0aaaaa
 
 #60000
 1aaaaa
-b11000 aaaac
-b10001000000100000000000000001111 aaaad
+b10100 aaaac
+b10011101000101000000000000000101 aaaad
+b1100100 aaaae
+1aaaag
+b1100100 aaaak
 
 #65000
 0aaaaa
 
 #70000
 1aaaaa
-b11100 aaaac
-b10100000110100000000000000000101 aaaad
+b11000 aaaac
+b0 aaaad
+b1100100 aaaaf
+0aaaag
+1aaaah
+b1100100 aaaaj
 
 #75000
 0aaaaa
 
 #80000
 1aaaaa
-b100000 aaaac
-b0 aaaad
+b11100 aaaac
+b1101001 aaaae
+b0 aaaaf
+0aaaah
+b0 aaaaj
+b1101001 aaaak
 
 #85000
 0aaaaa
 
 #90000
 1aaaaa
-b100100 aaaac
+b100000 aaaac
+b0 aaaae
+b0 aaaak
 
 #95000
 0aaaaa
 
 #100000
 1aaaaa
-b101000 aaaac
+b100100 aaaac
 
 #105000
 0aaaaa
 
 #110000
 1aaaaa
-b101100 aaaac
+b101000 aaaac
 
 #115000
 0aaaaa
 
 #120000
 1aaaaa
-b110000 aaaac
+b101100 aaaac
 
 #125000
 0aaaaa
 
 #130000
 1aaaaa
-b110100 aaaac
+b110000 aaaac
 
 #135000
 0aaaaa
 
 #140000
 1aaaaa
-b111000 aaaac
+b110100 aaaac
 
 #145000
 0aaaaa
 
 #150000
 1aaaaa
-b111100 aaaac
+b111000 aaaac
 
 #155000
 0aaaaa
 
 #160000
 1aaaaa
-b1000000 aaaac
+b111100 aaaac
 
 #165000
 0aaaaa
 
 #170000
 1aaaaa
-b1000100 aaaac
+b1000000 aaaac
 
 #175000
 0aaaaa
 
 #180000
 1aaaaa
-b1001000 aaaac
+b1000100 aaaac
 
 #185000
 0aaaaa
 
 #190000
 1aaaaa
-b1001100 aaaac
+b1001000 aaaac
 
 #195000
 0aaaaa

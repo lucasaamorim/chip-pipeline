@@ -234,7 +234,7 @@ SC_MODULE(Decoder) {
 
    SC_CTOR(Decoder) {
       SC_METHOD(decode);
-      sensitive << instruction << clk.pos();
+      sensitive << instruction << clk.pos() << reset;
    }
 };
 

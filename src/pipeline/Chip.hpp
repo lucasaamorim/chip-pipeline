@@ -43,6 +43,8 @@ SC_MODULE(Chip) {
    IF_ID* if_id;
    sc_signal<sc_uint<32>> if_id_pc_signal;
    sc_signal<sc_uint<32>> if_id_instruction_signal;
+   sc_signal<bool> if_id_flush;
+   sc_signal<bool> if_id_stall;
 
    /// Decoder
    Decoder* decoder;
@@ -125,6 +127,7 @@ SC_MODULE(Chip) {
 
       if (decoder_jump_signal.read()) {
          pc_mux_select.write(1);
+         if_id_flush.write(true);
       } else if (decoder_jump_n_signal.read() && ula_result_signal.read() < 0) {
          pc_mux_select.write(1);
       } else if (decoder_jump_z_signal.read()
@@ -132,6 +135,7 @@ SC_MODULE(Chip) {
          pc_mux_select.write(1);
       } else {
          pc_mux_select.write(0);
+         if_id_flush.write(false);
       }
    }
 
@@ -150,6 +154,14 @@ SC_MODULE(Chip) {
          mux_wb_val_sel_signal.write(0);
       }
    }
+
+   void print_data_write() {
+   //  std::cout << "Clock: " << sc_time_stamp() << std::endl;
+   //  std::cout << "Data para escrever na memória: " << ex_mem_data_out_1_signal.read() << std::endl;
+   //  std::cout << "Endereço da memória: " << ex_mem_ula_result_out_signal.read() << std::endl;
+   //  std::cout << "Sinal mem_write: " << ex_mem_mem_write_out_signal.read() << std::endl;
+   }
+
 
    SC_CTOR(Chip) {
       /// Sinais TEMP
@@ -188,6 +200,8 @@ SC_MODULE(Chip) {
       if_id->pc_out(if_id_pc_signal);
       if_id->instruction_in(instruction_memory_signal);
       if_id->instruction_out(if_id_instruction_signal);
+      if_id->flush(if_id_flush);
+      if_id->stall(if_id_stall);
 
       /// Decoder
       decoder = new Decoder("decoder");
@@ -372,6 +386,10 @@ SC_MODULE(Chip) {
 
       SC_METHOD(select_reg_data_write);
       sensitive << mem_wb_mem_to_reg_out_signal << clk.pos();
+
+      SC_METHOD(print_data_write);
+      sensitive << clk.pos();
+
    }
 
    void initialize_instructions(std::vector<sc_uint<32>> instructions) {

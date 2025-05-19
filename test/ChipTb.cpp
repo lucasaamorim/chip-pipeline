@@ -50,16 +50,27 @@ SC_MODULE(Testbench) {
       reset.write(false);
 
       // Program: demonstrates forwarding and jump
+      // std::vector<sc_uint<32>> prog = {
+      //    makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
+      //    makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
+      //    makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
+      //    makeJ(0b111111, 2), // J skip next 2
+      //    makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
+      //    makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
+      //    makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
+      //    makeI(0b100111, 1, 5, 5), // ADDI R5 = R3 + 5
+      //    0 // NOP
+      // };
+
       std::vector<sc_uint<32>> prog = {
-         makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
-         makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
-         makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
-         makeJ(0b111111, 2), // J skip next 2
-         makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
-         makeI(0b100001, 1, 4, 3), // XORI R5 (skipped)
-         makeI(0b101000, 3, 4, 5), // SUBI R6 = R3 - 5
-         0 // NOP
+         makeI(0b100111, 0, 2, 100),   // ADDI R2 = 100 
+         makeI(0b100111, 0, 3, 10),    // ADDI R3 = 10
+         makeI(0b101001, 2, 3, 0),     // ST R3 → MEM[100]
+         makeI(0b100110, 2, 4, 0),     // LD R4 = MEM[R2 + 0]
+         makeI(0b100111, 4, 5, 5),     // ADDI R5 = R4 + 5 (depende do load)
+         0                             // NOP
       };
+
       chip->initialize_instructions(prog);
 
       // Trace setup
@@ -68,6 +79,15 @@ SC_MODULE(Testbench) {
       sc_trace(tf, reset, "reset");
       sc_trace(tf, chip->pc_out_signal, "PC");
       sc_trace(tf, chip->if_id_instruction_signal, "INSTRUCTION");
+
+      // Trace dos sinais relevantes
+      sc_trace(tf, chip->data_memory->address, "mem_address");
+      sc_trace(tf, chip->data_memory->write_data, "mem_write_data");
+      sc_trace(tf, chip->data_memory->mem_write, "mem_write_signal");
+      sc_trace(tf, chip->data_memory->mem_read, "mem_read_signal");
+      sc_trace(tf, chip->data_memory->data, "mem_data_out");
+      sc_trace(tf, chip->ex_mem_data_out_1_signal, "mem_store_data");  
+      sc_trace(tf, chip->ex_mem_ula_result_out_signal, "mem_address"); 
 
       // Prev register snapshot using C array
       uint32_t prev[16] = { 0 };
