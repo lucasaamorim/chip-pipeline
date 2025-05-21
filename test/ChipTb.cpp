@@ -59,40 +59,33 @@ SC_MODULE(Testbench) {
       makeI(0b100100, 2, 1, 0),   // COMP R2 < R1? R5 = 1/0 = 1
 
       // Seção 2: Apenas Tipo-R
-      makeR(0b000000, 1, 2, 6),   // ADD R6 = R1 + R2 = 5 + 3 = 8
-      makeR(0b000001, 6, 3, 7),   // SUB R7 = R6 - R3 = 8 - 7 = 1
-      makeR(0b000010, 7, 4, 8),   // OR  R8 = R7 | R4 = 1 | 6 = 7
-      makeR(0b000011, 8, 1, 9),   // AND R9 = R8 & R1 = 7 & 5 = 5
-      makeR(0b000100, 9, 2, 10),  // XOR R10 = R9 ^ R2 = 5 ^ 3 = 6
+      makeR(0b000111, 2, 1, 6),   // ADD R6 = R1 + R2 = 1 + 3 = 4
+      makeR(0b001000, 2, 1, 7),   // SUB R7 = R2 - R1 = 3 - 1 = 2
+      makeR(0b000011, 1, 2, 9),   // AND R9 = R1 & R2 = 1 & 3 = 1
+      makeR(0b000010, 7, 4, 8),   // OR  R8 = R7 | R4 = 2 | 6 = 6
+      makeR(0b000001, 9, 2, 10),  // XOR R10 = R1 ^ R7 = 1 ^ 3 = 2
 
       // Reforço de dependências para stressar forwarding
-      makeR(0b000000, 10, 4, 11), // ADD R11 = R10 + R4 = 6 + 6 = 12
-      makeI(0b101000, 11, 12, 2), // SUBI R12 = R11 - 2 = 10
-      makeI(0b100001, 12, 13, 1), // XORI R13 = R12 ^ 1 = 11
-      makeR(0b000010, 13, 13, 14),// OR R14 = R13 | R13 = 11
-      makeI(0b100111, 14, 15, 1), // ADDI R15 = R14 + 1 = 12
+      makeR(0b000111, 10, 4, 11), // ADD R11 = R10 + R4 = 2 + 6 = 8
+      makeI(0b101000, 11, 12, 2), // SUBI R12 = R11 - 2 = 6
+      makeI(0b100001, 12, 13, 1), // XORI R13 = R12 ^ 1 = 7
+      makeR(0b000010, 13, 13, 14),// OR R14 = R13 | R13 = 7
+      makeI(0b100111, 14, 15, 1), // ADDI R15 = R14 + 1 = 8
 
-        makeI(0b100111, 0, 2, 100), // ADDI R2 = 100
-        makeI(0b100111, 0, 3, 10),  // ADDI R3 = 10
-        makeI(0b101001, 2, 3, 0),   // ST MEM[100] = 10
+      makeI(0b100111, 0, 2, 100), // ADDI R2 = 100
+      makeI(0b100111, 0, 3, 10),  // ADDI R3 = 10
+      makeI(0b101001, 2, 3, 0),   // ST MEM[100] = 10
 
-        makeI(0b100110, 4, 3, 0),   // LD R4 = MEM[100] = 10
-        makeI(0b100111, 4, 5, 5),   // ADDI R5 = R4 + 5 (depende do load)
+      makeI(0b100110, 4, 3, 0),   // LD R4 = MEM[100] = 10
+      makeI(0b100111, 4, 5, 5),   // ADDI R5 = R4 + 5 (depende do load)
 
-        makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
-        makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
-        makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
+      makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
+      makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20 = 30
 
-        makeJ(0b111111, 2), // J skip next 2
-        makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
-        makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
-        makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
-        makeI(0b100100, 3, 4, 5), // COMP
-        makeI(0b100100, 3, 4, 5), // COMP
-        makeI(0b100100, 3, 4, 5), // COMP
-
-          makeI(0b100111, 1, 5, 5), // ADDI R5 = R3 + 5
-
+      makeJ(0b111111, 2), // J skip next 2
+      makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
+      makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
+      makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
       0 // NOP
     };
 
@@ -120,7 +113,7 @@ SC_MODULE(Testbench) {
     uint32_t prev[16] = {0};
 
     // Run cycles and report writes
-    const int cycles = 60;
+    const int cycles = 35;
     for (int cycle = 0; cycle < cycles; ++cycle) {
       wait(clk.posedge_event());
       std::cout << "Cycle " << cycle;
