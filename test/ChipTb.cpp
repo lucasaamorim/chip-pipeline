@@ -8,151 +8,141 @@ using namespace sc_core;
 using namespace sc_dt;
 
 SC_MODULE(Testbench) {
-   sc_clock clk;
-   sc_signal<bool> reset;
-   Chip* chip;
+  sc_clock clk;
+  sc_signal<bool> reset;
+  Chip *chip;
 
-   SC_CTOR(Testbench) : clk("clk", 10, SC_NS) {
-      chip = new Chip("chip");
-      chip->clk(clk);
-      chip->reset(reset);
-      SC_THREAD(run);
-   }
+  SC_CTOR(Testbench) : clk("clk", 10, SC_NS) {
+    chip = new Chip("chip");
+    chip->clk(clk);
+    chip->reset(reset);
+    SC_THREAD(run);
+  }
 
-   // Instruction builders
-   sc_uint<32> makeR(unsigned opc, unsigned rs, unsigned rt, unsigned rd) {
-      sc_uint<32> ins = 0;
-      ins.range(31, 26) = opc;
-      ins.range(25, 22) = rs;
-      ins.range(21, 18) = rt;
-      ins.range(17, 14) = rd;
-      return ins;
-   }
-   sc_uint<32> makeI(unsigned opc, unsigned rs, unsigned rd, unsigned imm) {
-      sc_uint<32> ins = 0;
-      ins.range(31, 26) = opc;
-      ins.range(25, 22) = rs;
-      ins.range(21, 18) = rd;
-      ins.range(17, 0) = imm;
-      return ins;
-   }
-   sc_uint<32> makeJ(unsigned opc, unsigned offset) {
-      sc_uint<32> ins = 0;
-      ins.range(31, 26) = opc;
-      ins.range(25, 0) = offset;
-      return ins;
-   }
+  // Instruction builders
+  sc_uint<32> makeR(unsigned opc, unsigned rs, unsigned rt, unsigned rd) {
+    sc_uint<32> ins = 0;
+    ins.range(31, 26) = opc;
+    ins.range(25, 22) = rs;
+    ins.range(21, 18) = rt;
+    ins.range(17, 14) = rd;
+    return ins;
+  }
+  sc_uint<32> makeI(unsigned opc, unsigned rs, unsigned rd, unsigned imm) {
+    sc_uint<32> ins = 0;
+    ins.range(31, 26) = opc;
+    ins.range(25, 22) = rs;
+    ins.range(21, 18) = rd;
+    ins.range(17, 0) = imm;
+    return ins;
+  }
+  sc_uint<32> makeJ(unsigned opc, unsigned offset) {
+    sc_uint<32> ins = 0;
+    ins.range(31, 26) = opc;
+    ins.range(25, 0) = offset;
+    return ins;
+  }
 
-   void run() {
-      // Reset assertion
-      reset.write(true);
-      wait(2, SC_NS);
-      reset.write(false);
+  void run() {
+    // Reset assertion
+    reset.write(true);
+    wait(2, SC_NS);
+    reset.write(false);
 
-      // Program: demonstrates forwarding and jump
-      // std::vector<sc_uint<32>> prog = {
-      //    makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
-      //    makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
-      //    makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
-      //    makeJ(0b111111, 2), // J skip next 2
-      //    makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
-      //    makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
-      //    makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
-      //    makeI(0b100111, 1, 5, 5), // ADDI R5 = R3 + 5
-      //    0 // NOP
-      // };
 
-      std::vector<sc_uint<32>> prog = {
-         makeI(0b100111, 0, 2, 100),   // ADDI R2 = 100 
-         makeI(0b100111, 0, 3, 10),    // ADDI R3 = 10
-         makeI(0b101001, 2, 3, 0),     // ST R3 → MEM[100]
-         makeI(0b100110, 2, 4, 0),     // LD R4 = MEM[R2 + 0]
-         makeI(0b100111, 4, 5, 5),     // ADDI R5 = R4 + 5 (depende do load)
-         0                             // NOP
-      };
+    std::vector<sc_uint<32>> prog = {
+      // Seção 1: Apenas Imediatos
+      makeI(0b100111, 0, 1, 5),   // ADDI R1 = 5
+      makeI(0b101000, 1, 2, 2),   // SUBI R2 = R1 - 2 = 3
+      makeI(0b100010, 2, 3, 7),   // ORI  R3 = R2 | 7 = 7
+      makeI(0b100001, 3, 4, 1),   // XORI R4 = R3 ^ 1 = 6
+      makeI(0b100100, 2, 1, 0),   // COMP R2 < R1? R5 = 1/0 = 1
 
-      chip->initialize_instructions(prog);
+      // Seção 2: Apenas Tipo-R
+      makeR(0b000000, 1, 2, 6),   // ADD R6 = R1 + R2 = 5 + 3 = 8
+      makeR(0b000001, 6, 3, 7),   // SUB R7 = R6 - R3 = 8 - 7 = 1
+      makeR(0b000010, 7, 4, 8),   // OR  R8 = R7 | R4 = 1 | 6 = 7
+      makeR(0b000011, 8, 1, 9),   // AND R9 = R8 & R1 = 7 & 5 = 5
+      makeR(0b000100, 9, 2, 10),  // XOR R10 = R9 ^ R2 = 5 ^ 3 = 6
 
-      // Trace setup
-      sc_trace_file* tf = sc_create_vcd_trace_file("chip_tb");
-   
+      // Reforço de dependências para stressar forwarding
+      makeR(0b000000, 10, 4, 11), // ADD R11 = R10 + R4 = 6 + 6 = 12
+      makeI(0b101000, 11, 12, 2), // SUBI R12 = R11 - 2 = 10
+      makeI(0b100001, 12, 13, 1), // XORI R13 = R12 ^ 1 = 11
+      makeR(0b000010, 13, 13, 14),// OR R14 = R13 | R13 = 11
+      makeI(0b100111, 14, 15, 1), // ADDI R15 = R14 + 1 = 12
 
-      // IF
-      sc_trace(tf, chip->clk, "clk");
-      sc_trace(tf, chip->reset, "reset");
-      sc_trace(tf, chip->pc_out_signal, "IF/PC");
+        makeI(0b100111, 0, 2, 100), // ADDI R2 = 100
+        makeI(0b100111, 0, 3, 10),  // ADDI R3 = 10
+        makeI(0b101001, 2, 3, 0),   // ST MEM[100] = 10
 
-      // ID
-      sc_trace(tf, chip->if_id_pc_signal, "ID/IF_ID_PC");
-      sc_trace(tf, chip->if_id_instruction_signal, "ID/IF_ID_Instruction");
-      sc_trace(tf, chip->decoder_rs_signal, "ID/RS");
-      sc_trace(tf, chip->decoder_rt_signal, "ID/RT");
-      sc_trace(tf, chip->decoder_rd_signal, "ID/RD");
-      sc_trace(tf, chip->decoder_immediate_i_signal, "ID/ImmI");
-      sc_trace(tf, chip->rb_data_out_1_signal, "ID/RegData1");
-      sc_trace(tf, chip->rb_data_out_2_signal, "ID/RegData2");
-      sc_trace(tf, chip->decoder_alu_src_signal, "ID/ALUSrc");
-      sc_trace(tf, chip->decoder_alu_op_signal, "ID/ALUOp");
-      sc_trace(tf, chip->decoder_reg_write_signal, "ID/RegWrite");
-      sc_trace(tf, chip->decoder_mem_to_reg_signal, "ID/MemToReg");
-      sc_trace(tf, chip->decoder_mem_read_signal, "ID/MemRead");
-      sc_trace(tf, chip->decoder_mem_write_signal, "ID/MemWrite");
+        makeI(0b100110, 4, 3, 0),   // LD R4 = MEM[100] = 10
+        makeI(0b100111, 4, 5, 5),   // ADDI R5 = R4 + 5 (depende do load)
 
-      // EX
-      sc_trace(tf, chip->id_ex_data_out_1_signal, "EX/Operand1");
-      sc_trace(tf, chip->id_ex_data_out_2_signal, "EX/Operand2");
-      sc_trace(tf, chip->mux_ex_rs_val_out_signal, "EX/MuxRSVal");
-      sc_trace(tf, chip->mux_ex_rt_val_out_signal, "EX/MuxRTVal");
-      sc_trace(tf, chip->ula_result_signal, "EX/ULA_Result");
-      sc_trace(tf, chip->mux_ex_rd_out_signal, "EX/RD_Mux_Out");
-      sc_trace(tf, chip->rs_sel_signal, "EX/Forward_RS_Sel");
-      sc_trace(tf, chip->rt_sel_signal, "EX/Forward_RT_Sel");
-      sc_trace(tf, chip->id_ex_alu_op_out, "EX/ALUOp");
+        makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
+        makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
+        makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
 
-      // EX
-      sc_trace(tf, chip->ex_mem_ula_result_out_signal, "MEM/Addr");
-      sc_trace(tf, chip->ex_mem_data_out_1_signal, "MEM/DataToWrite");
-      sc_trace(tf, chip->ex_mem_mem_read_out_signal, "MEM/MemRead");
-      sc_trace(tf, chip->ex_mem_mem_write_out_signal, "MEM/MemWrite");
-      sc_trace(tf, chip->data_memory_data_signal, "MEM/MemDataRead");
+        makeJ(0b111111, 2), // J skip next 2
+        makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
+        makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
+        makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
+        makeI(0b100100, 3, 4, 5), // COMP
+        makeI(0b100100, 3, 4, 5), // COMP
+        makeI(0b100100, 3, 4, 5), // COMP
 
-      // WB
-      sc_trace(tf, chip->mem_wb_data_out_signal, "WB/DataMemOut");
-      sc_trace(tf, chip->mem_wb_ula_result_out_signal, "WB/ULA_Result");
-      sc_trace(tf, chip->mux_wb_val_out_signal, "WB/WriteBackData");
-      sc_trace(tf, chip->mem_wb_rd_out_signal, "WB/RD");
-      sc_trace(tf, chip->mem_wb_reg_write_out_signal, "WB/RegWrite");
-      sc_trace(tf, chip->mem_wb_mem_to_reg_out_signal, "WB/MemToReg");
+          makeI(0b100111, 1, 5, 5), // ADDI R5 = R3 + 5
+
+      0 // NOP
+    };
 
 
 
-      // Prev register snapshot using C array
-      uint32_t prev[16] = { 0 };
+    chip->initialize_instructions(prog);
 
-      // Run cycles and report writes
-      const int cycles = 20;
-      for (int cycle = 0; cycle < cycles; ++cycle) {
-         wait(clk.posedge_event());
-         std::cout << "Cycle " << cycle;
-         // Check each register
-         for (int r = 1; r < 16; ++r) {
-            uint32_t val = chip->register_bank->registers[r].to_uint();
-            if (val != prev[r]) {
-               std::cout << " | R" << r << "=" << val;
-               prev[r] = val;
-            }
-         }
-         std::cout << std::endl;
+    // Trace setup
+    sc_trace_file *tf = sc_create_vcd_trace_file("chip_tb");
+    sc_trace(tf, clk, "clk");
+    sc_trace(tf, reset, "reset");
+    sc_trace(tf, chip->pc_out_signal, "PC");
+    sc_trace(tf, chip->if_id_instruction_signal, "INSTRUCTION");
+
+    // Trace dos sinais relevantes
+    sc_trace(tf, chip->data_memory->address, "mem_address");
+    sc_trace(tf, chip->data_memory->write_data, "mem_write_data");
+    sc_trace(tf, chip->data_memory->mem_write, "mem_write_signal");
+    sc_trace(tf, chip->data_memory->mem_read, "mem_read_signal");
+    sc_trace(tf, chip->data_memory->data, "mem_data_out");
+    sc_trace(tf, chip->ex_mem_data_out_1_signal, "mem_store_data");
+    sc_trace(tf, chip->ex_mem_ula_result_out_signal, "mem_address");
+
+    // Prev register snapshot using C array
+    uint32_t prev[16] = {0};
+
+    // Run cycles and report writes
+    const int cycles = 60;
+    for (int cycle = 0; cycle < cycles; ++cycle) {
+      wait(clk.posedge_event());
+      std::cout << "Cycle " << cycle;
+      // Check each register
+      for (int r = 1; r < 16; ++r) {
+        uint32_t val = chip->register_bank->registers[r].to_uint();
+        if (val != prev[r]) {
+          std::cout << " | R" << r << "=" << val;
+          prev[r] = val;
+        }
       }
+      std::cout << std::endl;
+    }
 
-      sc_close_vcd_trace_file(tf);
-      std::cout << "Simulation done." << std::endl;
-      sc_stop();
-   }
+    sc_close_vcd_trace_file(tf);
+    std::cout << "Simulation done." << std::endl;
+    sc_stop();
+  }
 };
 
-int sc_main(int argc, char* argv[]) {
-   Testbench tb("tb");
-   sc_start();
-   return 0;
+int sc_main(int argc, char *argv[]) {
+  Testbench tb("tb");
+  sc_start();
+  return 0;
 }

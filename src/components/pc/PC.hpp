@@ -24,7 +24,7 @@ SC_MODULE(PC) {
    SC_CTOR(PC) {
       SC_METHOD(next_instruction);
       dont_initialize();
-      sensitive << clk.pos() << reset;
+      sensitive << clk.pos();
    }
 };
 

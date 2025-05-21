@@ -1,5 +1,5 @@
 $date
-     May 19, 2025       20:05:19
+     May 19, 2025       23:47:17
 $end
 
 $version
@@ -13,41 +13,15 @@ $end
 $scope module SystemC $end
 $var wire    1  aaaaa  clk       $end
 $var wire    1  aaaab  reset       $end
-$var wire   32  aaaac  IF/PC [31:0]  $end
-$var wire   32  aaaad  ID/IF_ID_PC [31:0]  $end
-$var wire   32  aaaae  ID/IF_ID_Instruction [31:0]  $end
-$var wire    4  aaaaf  ID/RS [3:0]  $end
-$var wire    4  aaaag  ID/RT [3:0]  $end
-$var wire    4  aaaah  ID/RD [3:0]  $end
-$var wire   32  aaaai  ID/ImmI [31:0]  $end
-$var wire   32  aaaaj  ID/RegData1 [31:0]  $end
-$var wire   32  aaaak  ID/RegData2 [31:0]  $end
-$var wire    1  aaaal  ID/ALUSrc       $end
-$var wire    3  aaaam  ID/ALUOp [2:0]  $end
-$var wire    1  aaaan  ID/RegWrite       $end
-$var wire    1  aaaao  ID/MemToReg       $end
-$var wire    1  aaaap  ID/MemRead       $end
-$var wire    1  aaaaq  ID/MemWrite       $end
-$var wire   32  aaaar  EX/Operand1 [31:0]  $end
-$var wire   32  aaaas  EX/Operand2 [31:0]  $end
-$var wire   32  aaaat  EX/MuxRSVal [31:0]  $end
-$var wire   32  aaaau  EX/MuxRTVal [31:0]  $end
-$var wire   32  aaaav  EX/ULA_Result [31:0]  $end
-$var wire    4  aaaaw  EX/RD_Mux_Out [3:0]  $end
-$var wire    2  aaaax  EX/Forward_RS_Sel [1:0]  $end
-$var wire    2  aaaay  EX/Forward_RT_Sel [1:0]  $end
-$var wire    3  aaaaz  EX/ALUOp [2:0]  $end
-$var wire   32  aaaba  MEM/Addr [31:0]  $end
-$var wire   32  aaabb  MEM/DataToWrite [31:0]  $end
-$var wire    1  aaabc  MEM/MemRead       $end
-$var wire    1  aaabd  MEM/MemWrite       $end
-$var wire   32  aaabe  MEM/MemDataRead [31:0]  $end
-$var wire   32  aaabf  WB/DataMemOut [31:0]  $end
-$var wire   32  aaabg  WB/ULA_Result [31:0]  $end
-$var wire   32  aaabh  WB/WriteBackData [31:0]  $end
-$var wire    4  aaabi  WB/RD [3:0]  $end
-$var wire    1  aaabj  WB/RegWrite       $end
-$var wire    1  aaabk  WB/MemToReg       $end
+$var wire   32  aaaac  PC [31:0]  $end
+$var wire   32  aaaad  INSTRUCTION [31:0]  $end
+$var wire   32  aaaae  mem_address [31:0]  $end
+$var wire   32  aaaaf  mem_write_data [31:0]  $end
+$var wire    1  aaaag  mem_write_signal       $end
+$var wire    1  aaaah  mem_read_signal       $end
+$var wire   32  aaaai  mem_data_out [31:0]  $end
+$var wire   32  aaaaj  mem_store_data [31:0]  $end
+$var wire   32  aaaak  mem_address [31:0]  $end
 $upscope $end
 $enddefinitions  $end
 
@@ -62,37 +36,11 @@ b0 aaaac
 b0 aaaad
 b0 aaaae
 b0 aaaaf
-b0 aaaag
-b0 aaaah
+0aaaag
+0aaaah
 b0 aaaai
 b0 aaaaj
 b0 aaaak
-0aaaal
-b0 aaaam
-1aaaan
-0aaaao
-0aaaap
-0aaaaq
-b0 aaaar
-b0 aaaas
-b0 aaaat
-b0 aaaau
-b0 aaaav
-b0 aaaaw
-b0 aaaax
-b0 aaaay
-b0 aaaaz
-b0 aaaba
-b0 aaabb
-0aaabc
-0aaabd
-b0 aaabe
-b0 aaabf
-b0 aaabg
-b0 aaabh
-b0 aaabi
-0aaabj
-0aaabk
 $end
 
 #5000
@@ -107,13 +55,7 @@ $end
 #20000
 1aaaaa
 b100 aaaac
-b10011100000010000000000001100100 aaaae
-b10 aaaag
-b1100100 aaaai
-1aaaal
-b100 aaaam
-b1 aaaax
-b1 aaaay
+b10011100000001000000000000000101 aaaad
 
 #25000
 0aaaaa
@@ -121,17 +63,7 @@ b1 aaaay
 #30000
 1aaaaa
 b1000 aaaac
-b100 aaaad
-b10011100000011000000000000001010 aaaae
-b11 aaaag
-b1010 aaaai
-b1100100 aaaau
-b1100100 aaaav
-b10 aaaaw
-b10 aaaax
-b11 aaaay
-b100 aaaaz
-1aaabj
+b10100000010010000000000000000010 aaaad
 
 #35000
 0aaaaa
@@ -139,16 +71,9 @@ b100 aaaaz
 #40000
 1aaaaa
 b1100 aaaac
-b1000 aaaad
-b10100100100011000000000000000000 aaaae
-b10 aaaaf
-b0 aaaai
-0aaaan
-1aaaaq
-b1010 aaaau
-b1010 aaaav
-b11 aaaaw
-b1100100 aaaba
+b10001000100011000000000000000111 aaaad
+b101 aaaae
+b101 aaaak
 
 #45000
 0aaaaa
@@ -156,21 +81,9 @@ b1100100 aaaba
 #50000
 1aaaaa
 b10000 aaaac
-b1100 aaaad
-b10011000100100000000000000000000 aaaae
-b100 aaaag
-b1100100 aaaaj
-1aaaan
-1aaaao
-1aaaap
-0aaaaq
-b1100100 aaaat
-b0 aaaau
-b1100100 aaaav
-b1010 aaaba
-b1100100 aaabg
-b1100100 aaabh
-b10 aaabi
+b10000100110100000000000000000001 aaaad
+b11 aaaae
+b11 aaaak
 
 #55000
 0aaaaa
@@ -178,22 +91,9 @@ b10 aaabi
 #60000
 1aaaaa
 b10100 aaaac
-b10000 aaaad
-b10011101000101000000000000000101 aaaae
-b100 aaaaf
-b101 aaaag
-b101 aaaai
-b0 aaaaj
-0aaaao
-0aaaap
-b1100100 aaaar
-b100 aaaaw
-b0 aaaax
-b1100100 aaaba
-1aaabd
-b1010 aaabg
-b1010 aaabh
-b11 aaabi
+b10010000010010000000000000000000 aaaad
+b111 aaaae
+b111 aaaak
 
 #65000
 0aaaaa
@@ -201,23 +101,9 @@ b11 aaabi
 #70000
 1aaaaa
 b11000 aaaac
-b10100 aaaad
-b0 aaaae
-b0 aaaaf
-b0 aaaag
-b0 aaaai
-0aaaal
-b0 aaaar
-b101 aaaau
-b1101001 aaaav
-b101 aaaaw
-b1 aaaax
-b1100100 aaabb
-1aaabc
-0aaabd
-b1100100 aaabg
-b1100100 aaabh
-0aaabj
+b10010000100001000000000000000000 aaaad
+b110 aaaae
+b110 aaaak
 
 #75000
 0aaaaa
@@ -225,20 +111,11 @@ b1100100 aaabh
 #80000
 1aaaaa
 b11100 aaaac
-b11000 aaaad
-b0 aaaat
-b0 aaaau
-b0 aaaav
-b0 aaaaw
-b0 aaaax
-b0 aaaay
-b1101001 aaaba
-b0 aaabb
-0aaabc
-b0 aaabh
-b100 aaabi
-1aaabj
-1aaabk
+b10010000100010000000000000000000 aaaad
+b1 aaaae
+b101 aaaaf
+b101 aaaaj
+b1 aaaak
 
 #85000
 0aaaaa
@@ -246,14 +123,9 @@ b100 aaabi
 #90000
 1aaaaa
 b100000 aaaac
-b11100 aaaad
-b1 aaaax
-b1 aaaay
-b0 aaaba
-b1101001 aaabg
-b1101001 aaabh
-b101 aaabi
-0aaabk
+b10010011000000000000000 aaaad
+b11 aaaaf
+b11 aaaaj
 
 #95000
 0aaaaa
@@ -261,12 +133,7 @@ b101 aaabi
 #100000
 1aaaaa
 b100100 aaaac
-b100000 aaaad
-b10 aaaax
-b10 aaaay
-b0 aaabg
-b0 aaabh
-b0 aaabi
+b101100011011100000000000000 aaaad
 
 #105000
 0aaaaa
@@ -274,7 +141,11 @@ b0 aaabi
 #110000
 1aaaaa
 b101000 aaaac
-b100100 aaaad
+b1001110100100000000000000000 aaaad
+b0 aaaae
+b101 aaaaf
+b101 aaaaj
+b0 aaaak
 
 #115000
 0aaaaa
@@ -282,7 +153,11 @@ b100100 aaaad
 #120000
 1aaaaa
 b101100 aaaac
-b101000 aaaad
+b1110000001100100000000000000 aaaad
+b111 aaaae
+b0 aaaaf
+b0 aaaaj
+b111 aaaak
 
 #125000
 0aaaaa
@@ -290,7 +165,7 @@ b101000 aaaad
 #130000
 1aaaaa
 b110000 aaaac
-b101100 aaaad
+b10010010010101000000000000000 aaaad
 
 #135000
 0aaaaa
@@ -298,7 +173,9 @@ b101100 aaaad
 #140000
 1aaaaa
 b110100 aaaac
-b110000 aaaad
+b10100100101100000000000000 aaaad
+b1 aaaae
+b1 aaaak
 
 #145000
 0aaaaa
@@ -306,7 +183,9 @@ b110000 aaaad
 #150000
 1aaaaa
 b111000 aaaac
-b110100 aaaad
+b10100010111100000000000000000010 aaaad
+b0 aaaae
+b0 aaaak
 
 #155000
 0aaaaa
@@ -314,7 +193,7 @@ b110100 aaaad
 #160000
 1aaaaa
 b111100 aaaac
-b111000 aaaad
+b10000111001101000000000000000001 aaaad
 
 #165000
 0aaaaa
@@ -322,7 +201,9 @@ b111000 aaaad
 #170000
 1aaaaa
 b1000000 aaaac
-b111100 aaaad
+b1011011101111000000000000000 aaaad
+b11111111111111111111111111111110 aaaae
+b11111111111111111111111111111110 aaaak
 
 #175000
 0aaaaa
@@ -330,7 +211,9 @@ b111100 aaaad
 #180000
 1aaaaa
 b1000100 aaaac
-b1000000 aaaad
+b10011111101111000000000000000001 aaaad
+b11111111111111111111111111111111 aaaae
+b11111111111111111111111111111111 aaaak
 
 #185000
 0aaaaa
@@ -338,9 +221,345 @@ b1000000 aaaad
 #190000
 1aaaaa
 b1001000 aaaac
-b1000100 aaaad
+b10011100000010000000000001100100 aaaad
 
 #195000
 0aaaaa
 
 #200000
+1aaaaa
+b1001100 aaaac
+b10011100000011000000000000001010 aaaad
+b0 aaaae
+b0 aaaak
+
+#205000
+0aaaaa
+
+#210000
+1aaaaa
+b1010000 aaaac
+b10100100100011000000000000000000 aaaad
+b1100100 aaaae
+b1100100 aaaak
+
+#215000
+0aaaaa
+
+#220000
+1aaaaa
+b1010100 aaaac
+b10011001000011000000000000000000 aaaad
+b1010 aaaae
+b1010 aaaak
+
+#225000
+0aaaaa
+
+#230000
+1aaaaa
+b1011000 aaaac
+b10011101000101000000000000000101 aaaad
+b1100100 aaaaf
+1aaaag
+b1100100 aaaaj
+
+#235000
+0aaaaa
+
+#240000
+1aaaaa
+b1011100 aaaac
+b10011100000001000000000000001010 aaaad
+b110 aaaaf
+0aaaag
+1aaaah
+b1100100 aaaai
+b110 aaaaj
+
+#245000
+0aaaaa
+
+#250000
+1aaaaa
+b1100000 aaaac
+b10011100010010000000000000010100 aaaad
+b1111 aaaae
+0aaaah
+b1111 aaaak
+
+#255000
+0aaaaa
+
+#260000
+1aaaaa
+b1100100 aaaac
+b1100010010001100000000000000 aaaad
+b1010 aaaae
+b0 aaaaf
+b0 aaaaj
+b1010 aaaak
+
+#265000
+0aaaaa
+
+#270000
+1aaaaa
+b1101000 aaaac
+b11111100000000000000000000000010 aaaad
+b11110 aaaae
+b1 aaaaf
+b1 aaaaj
+b11110 aaaak
+
+#275000
+0aaaaa
+
+#280000
+1aaaaa
+b1110000 aaaac
+b0 aaaad
+b1010 aaaae
+b1010 aaaak
+
+#285000
+0aaaaa
+
+#290000
+1aaaaa
+b1110100 aaaac
+b10100000110100000000000000000101 aaaad
+b0 aaaae
+b0 aaaaf
+b0 aaaaj
+b0 aaaak
+
+#295000
+0aaaaa
+
+#300000
+1aaaaa
+b1111000 aaaac
+b10010000110100000000000000000101 aaaad
+
+#305000
+0aaaaa
+
+#310000
+1aaaaa
+b1111100 aaaac
+b101 aaaae
+b1010 aaaaf
+b1010 aaaaj
+b101 aaaak
+
+#315000
+0aaaaa
+
+#320000
+1aaaaa
+b10000000 aaaac
+b1 aaaae
+b1 aaaak
+
+#325000
+0aaaaa
+
+#330000
+1aaaaa
+b10000100 aaaac
+b10011100010101000000000000000101 aaaad
+
+#335000
+0aaaaa
+
+#340000
+1aaaaa
+b10001000 aaaac
+b0 aaaad
+
+#345000
+0aaaaa
+
+#350000
+1aaaaa
+b10001100 aaaac
+b1111 aaaae
+b1111 aaaak
+
+#355000
+0aaaaa
+
+#360000
+1aaaaa
+b10010000 aaaac
+b0 aaaae
+b0 aaaaf
+b0 aaaaj
+b0 aaaak
+
+#365000
+0aaaaa
+
+#370000
+1aaaaa
+b10010100 aaaac
+
+#375000
+0aaaaa
+
+#380000
+1aaaaa
+b10011000 aaaac
+
+#385000
+0aaaaa
+
+#390000
+1aaaaa
+b10011100 aaaac
+
+#395000
+0aaaaa
+
+#400000
+1aaaaa
+b10100000 aaaac
+
+#405000
+0aaaaa
+
+#410000
+1aaaaa
+b10100100 aaaac
+
+#415000
+0aaaaa
+
+#420000
+1aaaaa
+b10101000 aaaac
+
+#425000
+0aaaaa
+
+#430000
+1aaaaa
+b10101100 aaaac
+
+#435000
+0aaaaa
+
+#440000
+1aaaaa
+b10110000 aaaac
+
+#445000
+0aaaaa
+
+#450000
+1aaaaa
+b10110100 aaaac
+
+#455000
+0aaaaa
+
+#460000
+1aaaaa
+b10111000 aaaac
+
+#465000
+0aaaaa
+
+#470000
+1aaaaa
+b10111100 aaaac
+
+#475000
+0aaaaa
+
+#480000
+1aaaaa
+b11000000 aaaac
+
+#485000
+0aaaaa
+
+#490000
+1aaaaa
+b11000100 aaaac
+
+#495000
+0aaaaa
+
+#500000
+1aaaaa
+b11001000 aaaac
+
+#505000
+0aaaaa
+
+#510000
+1aaaaa
+b11001100 aaaac
+
+#515000
+0aaaaa
+
+#520000
+1aaaaa
+b11010000 aaaac
+
+#525000
+0aaaaa
+
+#530000
+1aaaaa
+b11010100 aaaac
+
+#535000
+0aaaaa
+
+#540000
+1aaaaa
+b11011000 aaaac
+
+#545000
+0aaaaa
+
+#550000
+1aaaaa
+b11011100 aaaac
+
+#555000
+0aaaaa
+
+#560000
+1aaaaa
+b11100000 aaaac
+
+#565000
+0aaaaa
+
+#570000
+1aaaaa
+b11100100 aaaac
+
+#575000
+0aaaaa
+
+#580000
+1aaaaa
+b11101000 aaaac
+
+#585000
+0aaaaa
+
+#590000
+1aaaaa
+b11101100 aaaac
+
+#595000
+0aaaaa
+
+#600000
