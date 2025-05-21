@@ -50,26 +50,26 @@ SC_MODULE(Testbench) {
     reset.write(false);
 
     // Program: demonstrates forwarding and jump
-    // std::vector<sc_uint<32>> prog = {
-    //    makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
-    //    makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
-    //    makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
-    //    makeJ(0b111111, 2), // J skip next 2
-    //    makeI(0b100010, 0, 4, 15), // ORI  R4 (skipped)
-    //    makeI(0b100001, 1, 4, 3), // XORI R4 (skipped)
-    //    makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
-    //    makeI(0b100111, 1, 5, 5), // ADDI R5 = R3 + 5
-    //    0 // NOP
-    // };
-
     std::vector<sc_uint<32>> prog = {
+       makeI(0b100111, 0, 1, 10), // ADDI R1 = 10
+       makeI(0b100111, 1, 2, 20), // ADDI R2 = R1 + 20
+       makeR(0b000011, 1, 2, 3), // AND  R3 = R2 & R1
+       makeJ(0b111111, 2), // J skip next 2
+       makeI(0b100010, 0, 5, 15), // ORI  R5 (skipped)
+       makeI(0b100001, 1, 6, 3), // XORI R6 (skipped)
+       makeI(0b101000, 3, 4, 5), // SUBI R4 = R3 - 5
+       makeI(0b100111, 1, 5, 10), // ADDI R5 = R3 + 5
+       0 // NOP
+    };
+
+   /*  std::vector<sc_uint<32>> prog = {
         makeI(0b100111, 0, 2, 100), // ADDI R2 = 100
         makeI(0b100111, 0, 3, 10),  // ADDI R3 = 10
         makeI(0b101001, 2, 3, 0),   // ST MEM[10] = 100
         makeI(0b100110, 4, 3, 0),   // LD R4 = MEM[10] = 100
         makeI(0b100111, 4, 5, 5),   // ADDI R5 = R4 + 5 (depende do load)
         0                           // NOP
-    };
+    }; */
 
     chip->initialize_instructions(prog);
 
