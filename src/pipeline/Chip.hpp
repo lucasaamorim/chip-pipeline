@@ -127,7 +127,8 @@ SC_MODULE(Chip) {
    void next_pc_count() { next_pc.write(pc_out_signal.read() + 4); }
 
    void check_jump() {
-      jump_pc.write(pc_out_signal.read() + decoder_immediate_j_signal.read() + 4);
+      jump_pc.write(
+        if_id_pc_signal.read() + decoder_immediate_j_signal.read() + 4);
 
       if (decoder_jump_signal.read()) {
          pc_mux_select.write(1);
@@ -201,12 +202,11 @@ SC_MODULE(Chip) {
       if_id = new IF_ID("if_id");
       if_id->clock(clk);
       if_id->reset(reset);
+      if_id->stall(if_id_stall);
       if_id->pc_in(pc_out_signal);
       if_id->pc_out(if_id_pc_signal);
       if_id->instruction_in(instruction_memory_signal);
       if_id->instruction_out(if_id_instruction_signal);
-      if_id->flush(if_id_flush);
-      if_id->stall(if_id_stall);
 
       /// Decoder
       decoder = new Decoder("decoder");
@@ -227,6 +227,7 @@ SC_MODULE(Chip) {
       decoder->jump(decoder_jump_signal);
       decoder->jump_n(decoder_jump_n_signal);
       decoder->jump_z(decoder_jump_z_signal);
+      decoder->if_id_stall(if_id_stall);
       decoder->alu_op(decoder_alu_op_signal);
 
       /// Register Bank
@@ -400,7 +401,8 @@ SC_MODULE(Chip) {
 
       SC_METHOD(check_jump);
       sensitive << decoder_jump_signal << decoder_jump_n_signal
-                << decoder_jump_z_signal << ula_result_signal << clk.pos();
+                << decoder_jump_z_signal << ula_result_signal << if_id_pc_signal
+                << clk.pos();
 
       SC_METHOD(select_reg_dst);
       sensitive << id_ex_reg_dst_out << id_ex_mem_to_reg_out << clk.pos();
